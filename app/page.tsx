@@ -676,6 +676,22 @@ export default function Home() {
             <div className="h-px flex-1 max-w-[80px] bg-gradient-to-l from-transparent to-[#D4AF37]/40" />
           </div>
 
+          {/* ── Photobooth pill link ── */}
+          <div className="flex justify-center mt-6">
+            <Link
+              href="/photobooth"
+              className="group inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[#D4AF37]/50 bg-white/70 hover:bg-white hover:border-[#D4AF37] backdrop-blur-sm shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5"
+            >
+              <span className="text-base leading-none">📸</span>
+              <span className="text-[10px] font-semibold tracking-[0.18em] uppercase text-[#311908] group-hover:text-[#9a4152] transition-colors">
+                {lang === "id" ? "Coba Photobooth Sekaranti" : "Try Sekaranti Photobooth"}
+              </span>
+              <svg className="w-3 h-3 text-[#8C7D73] group-hover:text-[#9a4152] group-hover:translate-x-0.5 transition-all" viewBox="0 0 20 20" fill="none">
+                <path d="M4 10h11m-4-4 4 4-4 4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </Link>
+          </div>
+
         </div>
 
         {/* Big subtle watermark */}
