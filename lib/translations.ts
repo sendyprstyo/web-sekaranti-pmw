@@ -5,11 +5,11 @@ export const translations = {
     // Navigation
     nav: {
       home: "Beranda",
-      collections: "KOLEKSI",
-      about: "TENTANG SEKARANTI",
+      collections: "Koleksi",
+      about: "Tentang Sekaranti",
       contact: "Kontak",
       shopNow: "Beli Sekarang",
-      shopNowSub: "Beli Sekarang (Temukan Motif)",
+      shopNowSub: "Beli Sekarang",
       whatsappOrder: "Pesan via WhatsApp",
       openMenu: "Buka Menu",
       closeMenu: "Tutup Menu",
@@ -194,10 +194,10 @@ export const translations = {
     nav: {
       home: "Home",
       collections: "Collections",
-      about: "ABOUT SEKARANTI",
+      about: "About Sekaranti",
       contact: "Contact",
       shopNow: "Shop Now",
-      shopNowSub: "Shop Now (Explore Patterns)",
+      shopNowSub: "Shop Now",
       whatsappOrder: "Order via WhatsApp",
       openMenu: "Open Menu",
       closeMenu: "Close Menu",

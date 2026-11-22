@@ -4,7 +4,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { whatsappHref } from "../lib/collections";
 import { useLanguage } from "../lib/language-context";
 
 export default function FloatingNavbar() {
@@ -99,10 +98,12 @@ export default function FloatingNavbar() {
   return (
     <header className="fixed top-3 sm:top-5 left-0 right-0 z-50 px-3 sm:px-6 pointer-events-none">
       <div
-        className={`relative mx-auto max-w-6xl w-full rounded-full transition-all duration-500 pointer-events-auto border ${
-          scrolled
-            ? "bg-[#fcf9f4]/95 backdrop-blur-2xl border-[#d4c3bb]/80 shadow-[0_16px_40px_rgba(49,25,8,0.12)] py-2 px-4 sm:px-6"
-            : "bg-[#fcf9f4]/90 backdrop-blur-xl border-[#d4c3bb]/50 shadow-[0_10px_32px_rgba(49,25,8,0.07)] py-2.5 px-4 sm:px-7"
+        className={`relative mx-auto max-w-6xl w-full transition-all duration-300 pointer-events-auto border ${
+          mobileOpen
+            ? "rounded-3xl bg-[#fcf9f4] border-[#d4c3bb] shadow-[0_20px_50px_rgba(49,25,8,0.18)] p-3.5 sm:p-5"
+            : scrolled
+              ? "rounded-full bg-[#fcf9f4]/95 backdrop-blur-2xl border-[#d4c3bb]/80 shadow-[0_16px_40px_rgba(49,25,8,0.12)] py-2 px-4 sm:px-6"
+              : "rounded-full bg-[#fcf9f4]/90 backdrop-blur-xl border-[#d4c3bb]/50 shadow-[0_10px_32px_rgba(49,25,8,0.07)] py-2.5 px-4 sm:px-7"
         }`}
       >
         {/* Golden bevel */}
@@ -206,36 +207,30 @@ export default function FloatingNavbar() {
 
         {/* Mobile Menu Dropdown */}
         {mobileOpen && (
-          <div className="md:hidden mt-3 pt-3 border-t border-[#d4c3bb]/40 flex flex-col gap-1">
-            {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={(e) => handleNavClick(e, item.href)}
-                className="text-[12px] uppercase tracking-[0.18em] font-semibold py-2.5 px-4 rounded-xl text-[#50443e] hover:text-[#311908] hover:bg-[#311908]/5 transition-colors"
-              >
-                {item.label}
-              </Link>
-            ))}
-            <div className="mt-2 pt-2 border-t border-[#d4c3bb]/40 flex flex-col gap-2">
+          <div className="md:hidden mt-3 pt-3 border-t border-[#d4c3bb]/50 flex flex-col gap-1.5 animate-in fade-in-50 duration-200">
+            <nav className="flex flex-col gap-1" aria-label="Navigasi Mobile">
+              {navItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={(e) => handleNavClick(e, item.href)}
+                  className="flex items-center justify-between text-xs uppercase tracking-[0.2em] font-semibold py-3 px-4 rounded-xl text-[#4a3d35] hover:text-[#311908] hover:bg-[#311908]/[0.05] active:bg-[#311908]/[0.08] transition-colors"
+                >
+                  <span>{item.label}</span>
+                  <span className="text-[#a48e82] text-sm">›</span>
+                </Link>
+              ))}
+            </nav>
+
+            <div className="pt-2.5 border-t border-[#d4c3bb]/50 mt-1">
               <Link
                 href="/#collections"
                 onClick={(e) => handleNavClick(e, "/#collections")}
-                className="flex items-center justify-between text-[11px] uppercase tracking-widest font-semibold py-2.5 px-4 rounded-xl bg-[#311908] text-white hover:bg-[#4A2E1B] transition-colors"
+                className="w-full flex items-center justify-center gap-2.5 py-3.5 px-6 rounded-full bg-[#311908] hover:bg-[#4A2E1B] !text-white text-xs uppercase tracking-[0.22em] font-bold shadow-[0_4px_16px_rgba(49,25,8,0.22)] active:scale-[0.99] transition-all duration-200 cursor-pointer"
               >
-                <span>{t.nav.shopNowSub}</span>
-                <span aria-hidden="true">↓</span>
+                <span className="!text-white font-bold tracking-[0.22em]">{t.nav.shopNow}</span>
+                <span aria-hidden="true" className="!text-white font-bold text-sm">↓</span>
               </Link>
-              <a
-                href={whatsappHref()}
-                target="_blank"
-                rel="noreferrer"
-                onClick={() => setMobileOpen(false)}
-                className="flex items-center justify-between text-[11px] uppercase tracking-widest font-semibold py-2.5 px-4 rounded-xl bg-[#25D366] text-white hover:bg-[#20ba59] transition-colors"
-              >
-                <span>{t.nav.whatsappOrder}</span>
-                <span aria-hidden="true">→</span>
-              </a>
             </div>
           </div>
         )}
