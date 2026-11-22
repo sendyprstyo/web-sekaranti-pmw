@@ -39,7 +39,7 @@ export const PRODUCT_SIZE = "110 × 110 cm";
 export const PRODUCT_FINISHING = "Jahitan tepi rapi dan kuat";
 export const INSTAGRAM_URL = "https://www.instagram.com/sekarantii.id/";
 export const TIKTOK_URL = "https://www.tiktok.com/@sekarantii.id";
-export const SHOPEE_URL = "https://shopee.co.id/sekarantii.id";
+export const SHOPEE_URL = "https://id.shp.ee/35K4DR4M";
 export const TOKOPEDIA_URL = "https://www.tokopedia.com/sekarantii";
 
 const collections: Collection[] = [
