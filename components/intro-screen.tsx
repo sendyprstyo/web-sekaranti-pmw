@@ -82,9 +82,9 @@ export default function IntroScreen() {
       />
 
       {/* ── Center content — fades in, then fades out ── */}
-      <div className="absolute inset-0 flex items-center justify-center">
+      <div className="absolute inset-0 flex items-center justify-center px-4">
         <div
-          className="flex flex-col items-center gap-5 select-none"
+          className="flex flex-col items-center gap-4 sm:gap-5 select-none w-full max-w-sm sm:max-w-xl text-center px-2"
           style={{
             opacity: isExiting ? 0 : isVisible ? 1 : 0,
             transform: isVisible && !isExiting ? 'translateY(0) scale(1)' : isExiting ? 'translateY(-8px) scale(0.98)' : 'translateY(18px) scale(0.97)',
@@ -97,15 +97,15 @@ export default function IntroScreen() {
           <div className="relative flex items-center justify-center">
             {/* Outer pulse ring */}
             <div
-              className="absolute w-28 h-28 rounded-full border border-[#D4AF37]/20"
+              className="absolute w-24 h-24 sm:w-28 sm:h-28 rounded-full border border-[#D4AF37]/20"
               style={{
                 animation: 'intro-ping 2s cubic-bezier(0,0,0.2,1) infinite',
               }}
             />
             {/* Middle ring */}
-            <div className="absolute w-24 h-24 rounded-full border border-[#D4AF37]/30" />
+            <div className="absolute w-20 h-20 sm:w-24 sm:h-24 rounded-full border border-[#D4AF37]/30" />
             {/* Logo circle */}
-            <div className="relative w-20 h-20 rounded-full overflow-hidden border-2 border-[#D4AF37]/70 shadow-[0_0_30px_rgba(212,175,55,0.3)] z-10">
+            <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 border-[#D4AF37]/70 shadow-[0_0_30px_rgba(212,175,55,0.3)] z-10">
               <Image
                 src="/assets/logo-sekaranti.jpg"
                 alt="SEKARANTI"
@@ -118,28 +118,28 @@ export default function IntroScreen() {
           </div>
 
           {/* Brand name */}
-          <div className="text-center space-y-1.5 mt-1">
+          <div className="text-center space-y-1 sm:space-y-1.5 mt-1 w-full max-w-full">
             <h1
-              className="text-white text-5xl sm:text-6xl tracking-[0.35em] uppercase font-normal"
+              className="text-white text-[24px] xs:text-[28px] sm:text-5xl md:text-6xl tracking-[0.22em] sm:tracking-[0.32em] uppercase font-normal pl-[0.22em] sm:pl-[0.32em] whitespace-nowrap leading-tight"
               style={{ fontFamily: 'var(--font-playfair, Georgia, serif)' }}
             >
               SEKARANTI
             </h1>
-            <p className="text-[#D4AF37] text-[9px] sm:text-[10px] tracking-[0.45em] uppercase font-semibold font-sans">
+            <p className="text-[#D4AF37] text-[8px] xs:text-[9px] sm:text-[10px] tracking-[0.28em] sm:tracking-[0.45em] uppercase font-semibold font-sans pl-[0.28em] sm:pl-[0.45em]">
               Premium Printed Hijab
             </p>
           </div>
 
           {/* Gold ornament divider */}
-          <div className="flex items-center gap-4 mt-1">
-            <div className="w-16 h-px bg-gradient-to-r from-transparent to-[#D4AF37]/80" />
+          <div className="flex items-center gap-3 sm:gap-4 mt-1">
+            <div className="w-10 sm:w-16 h-px bg-gradient-to-r from-transparent to-[#D4AF37]/80" />
             <span className="text-[#D4AF37] text-xs">✦</span>
-            <div className="w-16 h-px bg-gradient-to-l from-transparent to-[#D4AF37]/80" />
+            <div className="w-10 sm:w-16 h-px bg-gradient-to-l from-transparent to-[#D4AF37]/80" />
           </div>
 
           {/* Tagline */}
           <p
-            className="text-white/35 text-[9px] sm:text-[10px] tracking-[0.28em] uppercase font-sans"
+            className="text-white/40 text-[8.5px] sm:text-[10px] tracking-[0.16em] sm:tracking-[0.26em] uppercase font-sans px-4 text-center max-w-xs sm:max-w-md"
             style={{
               opacity: isVisible && !isExiting ? 1 : 0,
               transition: 'opacity 800ms ease 500ms',
