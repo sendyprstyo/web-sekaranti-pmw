@@ -57,7 +57,6 @@ export default function FloatingNavbar() {
     { href: "/#collections", label: t.nav.collections },
     { href: "/#tentang-kami", label: t.nav.about },
     { href: "/#contact", label: t.nav.contact },
-    { href: "/photobooth", label: "📸 Photobooth" },
   ];
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
