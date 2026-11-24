@@ -19,8 +19,8 @@ const VALUES = [
     icon: "◈",
     titleId: "Kualitas Tanpa Kompromi",
     titleEn: "Uncompromising Quality",
-    descId: "bahan Viscose premium dipilih khusus untuk memberikan kenyamanan, kilau lembut, dan ketahanan terbaik.",
-    descEn: "Viscose Premium is specially chosen for exceptional comfort, subtle sheen, and lasting quality.",
+    descId: "bahan Voal Ultrasoft dipilih khusus untuk memberikan kenyamanan maksimal, tekstur ultra-ringan, dan kelembutan terbaik yang nyaman dipakai seharian.",
+    descEn: "Voal Ultrasoft is specially chosen for exceptional comfort, its featherlight texture, and ultra-soft feel that keeps you at ease all day long.",
   },
   {
     icon: "◇",
@@ -236,7 +236,7 @@ export default function AboutContent() {
                 <div>
                   <span className="font-display text-sm font-bold text-[#311908] block">Puspa Raras</span>
                   <span className="text-[11px] text-[#50443e]">
-                    {isEn ? "Viscose Fabric Detail" : "Detail Serat Viscose"}
+                    {isEn ? "Voal Ultrasoft Fabric Detail" : "Detail Serat Voal Ultrasoft"}
                   </span>
                 </div>
                 <span className="text-xs text-[#D4AF37] font-serif italic">SEKARANTI · 01</span>

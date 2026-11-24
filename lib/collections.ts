@@ -34,7 +34,7 @@ export const PRODUCT_PRICE = 67_000;
 export const PRODUCT_ORIGINAL_PRICE = 0;
 export const PRODUCT_PRICE_LABEL = `Rp${PRODUCT_PRICE.toLocaleString("id-ID")}`;
 export const PRODUCT_ORIGINAL_PRICE_LABEL = ``;
-export const PRODUCT_MATERIAL = "Viscose";
+export const PRODUCT_MATERIAL = "Voal Ultrasoft";
 export const PRODUCT_SIZE = "110 × 110 cm";
 export const PRODUCT_FINISHING = "Jahitan tepi rapi dan kuat";
 export const INSTAGRAM_URL = "https://www.instagram.com/sekarantii.id/";
@@ -89,12 +89,12 @@ const collections: Collection[] = [
       },
       {
         src: "/assets/PUSPA%20RARAS/SLIDE%202%20Product%20Showcase.png",
-        alt: "Tampilan bentangan motif Puspa Raras pada kain hijab Viscose.",
+        alt: "Tampilan bentangan motif Puspa Raras pada kain hijab Voal Ultrasoft.",
         label: "Product Showcase",
       },
       {
         src: "/assets/PUSPA%20RARAS/SLIDE%203%20Fabric%20%26%20Detail.png",
-        alt: "Detail tekstur bahan Viscose dan motif Puspa Raras.",
+        alt: "Detail tekstur bahan Voal Ultrasoft dan motif Puspa Raras.",
         label: "Fabric & Detail",
       },
       {

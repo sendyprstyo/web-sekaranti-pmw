@@ -495,8 +495,8 @@ export default function CollectionDetailContent({
                   <div className="space-y-2 text-[#4A2E1B]">
                     <p className="text-[11.5px] italic mb-1.5 text-[#8C7D73]">
                       {lang === 'en'
-                        ? 'Care instructions for Viscose fabric to preserve its soft texture and colour:'
-                        : 'Petunjuk perawatan kain Viscose agar serat halus & warnanya tetap awet:'}
+                        ? 'Care instructions for Voal Ultrasoft fabric to preserve its ultra-soft texture and colour:'
+                        : 'Petunjuk perawatan kain Voal Ultrasoft agar serat ultra-lembut & warnanya tetap awet:'}
                     </p>
                     <p>• {lang === 'en' ? 'Wash gently by hand using cold water.' : 'Cuci lembut dengan tangan menggunakan air dingin.'}</p>
                     <p>• {lang === 'en' ? 'Use mild detergent.' : 'Gunakan deterjen berbahan lembut.'}</p>
@@ -631,7 +631,7 @@ export default function CollectionDetailContent({
             </div>
 
             <div className="space-y-2 text-xs text-[#50443e]">
-              <p>• <strong>{lang === 'en' ? 'Material:' : 'Bahan:'}</strong> {lang === 'en' ? 'Viscose (soft & holds at the crown).' : 'Viscose (lembut & tegak di dahi).'}</p>
+              <p>• <strong>{lang === 'en' ? 'Material:' : 'Bahan:'}</strong> {lang === 'en' ? 'Voal Ultrasoft (ultra-light, soft & holds at the crown).' : 'Voal Ultrasoft (ultra-ringan, lembut & tegak di dahi).'}</p>
               <p>• <strong>Finishing:</strong> {lang === 'en' ? 'High-precision machine edge stitching, neat and durable.' : 'Jahit tepi mesin presisi tinggi, rapi, dan kokoh.'}</p>
               <p>• <strong>{lang === 'en' ? 'Comfort:' : 'Kenyamanan:'}</strong> {lang === 'en' ? 'Cool on the scalp, breathable, and non-slip.' : 'Dingin di kulit kepala, breathable, dan tidak licin.'}</p>
             </div>

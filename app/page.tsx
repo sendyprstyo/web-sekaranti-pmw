@@ -69,7 +69,7 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* ============================================
-          HERO SLIDER — Clean Editorial Carousel
+          HERO SLIDER � Clean Editorial Carousel
           ============================================ */}
       <HeroSlider />
 
@@ -86,7 +86,7 @@ export default function Home() {
                   <span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37] flex-shrink-0" />
                   <span>{item}</span>
                 </span>
-                <span className="text-[#D4AF37] text-[10px] flex-shrink-0">✦</span>
+                <span className="text-[#D4AF37] text-[10px] flex-shrink-0">?</span>
               </span>
             ))}
           </div>
@@ -99,7 +99,7 @@ export default function Home() {
                   <span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37] flex-shrink-0" />
                   <span>{item}</span>
                 </span>
-                <span className="text-[#D4AF37] text-[10px] flex-shrink-0">✦</span>
+                <span className="text-[#D4AF37] text-[10px] flex-shrink-0">?</span>
               </span>
             ))}
           </div>
@@ -120,7 +120,7 @@ export default function Home() {
           </p>
         </div>
 
-        {/* 4 Cards Grid — Modern Fashion Catalog (2 cols on mobile, 4 on desktop) */}
+        {/* 4 Cards Grid � Modern Fashion Catalog (2 cols on mobile, 4 on desktop) */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 lg:gap-7">
           {collections.map((item, index) => {
             const visualDesc = lang === 'en' ? (collectionDescriptionsEn[item.slug] || item.visualDescription) : item.visualDescription;
@@ -131,12 +131,12 @@ export default function Home() {
                 key={item.slug}
                 className="group flex flex-col relative"
               >
-                {/* Image Container — Refined Aspect Ratio (4:5) for perfect full viewport fit */}
+                {/* Image Container � Refined Aspect Ratio (4:5) for perfect full viewport fit */}
                 <div className="relative aspect-[4/5] w-full rounded-2xl overflow-hidden bg-[#eee5de] shadow-sm hover:shadow-xl transition-all duration-300">
                   <Link href={`/collections/${item.slug}`} className="absolute inset-0 z-0">
                     <Image
                       src={item.modelImage}
-                      alt={`${item.name} — ${visualDesc}`}
+                      alt={`${item.name} � ${visualDesc}`}
                       fill
                       sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 25vw"
                       className="object-cover object-[center_30%] group-hover:scale-105 transition-transform duration-500 ease-out"
@@ -176,7 +176,7 @@ export default function Home() {
                     </svg>
                   </button>
 
-                  {/* Hover Quick Action — Muswe Exact Style Frosted Glass Bar */}
+                  {/* Hover Quick Action � Muswe Exact Style Frosted Glass Bar */}
                   <div className="absolute inset-x-0 bottom-0 h-11 sm:h-12 bg-white/75 hover:bg-white/90 backdrop-blur-md border-t border-white/60 flex items-center justify-center transition-all duration-300 ease-out z-10 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 pointer-events-none">
                     <span className="font-display uppercase tracking-[0.22em] text-[#1c1c19] text-xs sm:text-[13px] font-normal select-none">
                       {t.collections.quickView}
@@ -225,21 +225,21 @@ export default function Home() {
       </section>
 
       {/* ============================================
-          TENTANG KAMI — Muswe-Inspired Editorial Section
+          TENTANG KAMI � Muswe-Inspired Editorial Section
           ============================================ */}
       <section id="tentang-kami" className="scroll-mt-20">
 
-        {/* ── PART 1: Full-width Hero Narasi (Muswe: big type, clean, white) ── */}
+        {/* -- PART 1: Full-width Hero Narasi (Muswe: big type, clean, white) -- */}
         <div className="border-t border-[#d4c3bb]/40 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-16 pt-20 sm:pt-28 pb-16 sm:pb-20">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
               {/* Left label col */}
               <div className="lg:col-span-4 flex flex-col gap-3 lg:pt-2">
                 <span className="text-[9px] uppercase tracking-[0.3em] font-semibold text-[#8C7D73]">
-                  {lang === 'en' ? '— The Story of SEKARANTI' : '— Tentang SEKARANTI'}
+                  {lang === 'en' ? '� The Story of SEKARANTI' : '� Tentang SEKARANTI'}
                 </span>
                 <div className="w-8 h-px bg-[#D4AF37]" />
-                {/* Model image — stacked below label on desktop */}
+                {/* Model image � stacked below label on desktop */}
                 <div className="relative aspect-[3/4] w-full max-w-[260px] mt-4 rounded-2xl overflow-hidden border border-[#d4c3bb]/60 shadow-lg hidden lg:block">
                   <Image
                     src={storyCollection.modelImage}
@@ -281,8 +281,8 @@ export default function Home() {
                     </span>
                     <p className="text-sm text-[#50443e] font-sans font-light leading-relaxed">
                       {lang === 'en'
-                        ? 'To present hijabs that are more than a covering — a meaningful expression of art and elegance, crafted with Viscose Premium for the modern Indonesian woman.'
-                        : 'Menghadirkan hijab yang lebih dari sekadar penutup kepala — sebuah ekspresi seni dan keanggunan yang bermakna, dari bahan Viscose premium untuk perempuan Indonesia modern.'
+                        ? 'To present hijabs that are more than a covering � a meaningful expression of art and elegance, crafted with Voal Ultrasoft for the modern Indonesian woman.'
+                        : 'Menghadirkan hijab yang lebih dari sekadar penutup kepala � sebuah ekspresi seni dan keanggunan yang bermakna, dari bahan Voal Ultrasoft untuk perempuan Indonesia modern.'
                       }
                     </p>
                   </div>
@@ -293,7 +293,7 @@ export default function Home() {
         </div>
 
 
-        {/* ── PATTERN SHOWCASE: Motif Bergerak ── */}
+        {/* -- PATTERN SHOWCASE: Motif Bergerak -- */}
         <div className="py-16 sm:py-20 bg-[#F2EDE4]/60 border-y border-[#d4c3bb]/50 overflow-hidden">
           <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 mb-10 sm:mb-12">
             <div className="text-center max-w-2xl mx-auto">
@@ -375,7 +375,7 @@ export default function Home() {
         </div>
 
 
-        {/* ── PART 3: Quality Cards — Muswe style: label + bold title + desc ── */}
+        {/* -- PART 3: Quality Cards � Muswe style: label + bold title + desc -- */}
         <div className="bg-white border-b border-[#d4c3bb]/40">
           <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-16 py-16 sm:py-20">
             <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-[#d4c3bb]/40">
@@ -385,12 +385,12 @@ export default function Home() {
                   {lang === 'en' ? 'QUALITY' : 'KUALITAS'}
                 </span>
                 <h3 className="font-display text-xl sm:text-2xl text-[#1c1c19] font-normal leading-tight">
-                  {lang === 'en' ? 'Viscose Premium' : 'Bahan Viscose Premium'}
+                  {lang === 'en' ? 'Voal Ultrasoft Premium' : 'Bahan Voal Ultrasoft Premium'}
                 </h3>
                 <p className="text-xs text-[#50443e] font-sans font-light leading-relaxed">
                   {lang === 'en'
-                    ? 'We select the finest Viscose for its subtle lustre, breathability, and structure. It holds beautifully at the crown, stays cool all day, and never shows through.'
-                    : 'Kami memilih Viscose terbaik karena kilau mattenya yang elegan, kemampuan bernapas, dan strukturnya yang baik. Tegak di dahi, adem sepanjang hari, dan tidak menerawang.'
+                    ? 'We select the finest Voal Ultrasoft for its featherlight feel, breathability, and natural drape. It holds beautifully at the crown, stays cool all day, and never shows through.'
+                    : 'Kami memilih Voal Ultrasoft terbaik karena teksturnya yang sangat ringan, adem di kulit, dan jatuh natural yang elegan. Tegak di dahi, nyaman sepanjang hari, dan tidak menerawang.'
                   }
                 </p>
               </div>
@@ -405,8 +405,8 @@ export default function Home() {
                 </h3>
                 <p className="text-xs text-[#50443e] font-sans font-light leading-relaxed">
                   {lang === 'en'
-                    ? 'Each hijab is finished with precise edge stitching. We ensure neat hemlines, accurate patterns, and durable seams — 110×110 cm of perfection in every piece.'
-                    : 'Setiap hijab difinishing dengan jahitan tepi yang presisi. Kami memastikan lebar kain 110×110 cm, pola tepat, dan jahitan kuat — kesempurnaan di setiap helai.'
+                    ? 'Each hijab is finished with precise edge stitching. We ensure neat hemlines, accurate patterns, and durable seams � 110�110 cm of perfection in every piece.'
+                    : 'Setiap hijab difinishing dengan jahitan tepi yang presisi. Kami memastikan lebar kain 110�110 cm, pola tepat, dan jahitan kuat � kesempurnaan di setiap helai.'
                   }
                 </p>
               </div>
@@ -421,8 +421,8 @@ export default function Home() {
                 </h3>
                 <p className="text-xs text-[#50443e] font-sans font-light leading-relaxed">
                   {lang === 'en'
-                    ? 'Inspired by Indonesian batik heritage, every SEKARANTI pattern is illustrated with high artistic precision — a harmony of color, culture, and contemporary expression.'
-                    : 'Terinspirasi dari warisan batik nusantara, setiap motif SEKARANTI digambar dengan presisi artistik tinggi — harmoni warna, budaya, dan ekspresi kontemporer.'
+                    ? 'Inspired by Indonesian batik heritage, every SEKARANTI pattern is illustrated with high artistic precision � a harmony of color, culture, and contemporary expression.'
+                    : 'Terinspirasi dari warisan batik nusantara, setiap motif SEKARANTI digambar dengan presisi artistik tinggi � harmoni warna, budaya, dan ekspresi kontemporer.'
                   }
                 </p>
               </div>
@@ -430,21 +430,21 @@ export default function Home() {
           </div>
         </div>
 
-        {/* ── PART 4: Centered Philosophy Quote (Muswe exact) ── */}
+        {/* -- PART 4: Centered Philosophy Quote (Muswe exact) -- */}
         <div className="bg-white py-20 sm:py-28 px-4 text-center border-b border-[#d4c3bb]/40">
           <p className="font-display text-2xl sm:text-3xl lg:text-4xl text-[#1c1c19] italic leading-snug max-w-3xl mx-auto">
             {lang === 'en'
-              ? '"Beauty is not just what you wear — it is the story you carry."'
-              : '"Keindahan bukan sekadar yang kamu kenakan — melainkan kisah yang kamu bawa."'
+              ? '"Beauty is not just what you wear � it is the story you carry."'
+              : '"Keindahan bukan sekadar yang kamu kenakan � melainkan kisah yang kamu bawa."'
             }
           </p>
           <div className="w-10 h-px bg-[#D4AF37] mx-auto my-5" />
           <span className="text-[10px] uppercase tracking-[0.3em] font-semibold text-[#8C7D73]">
-            {lang === 'en' ? '— SEKARANTI Philosophy' : '— Filosofi SEKARANTI'}
+            {lang === 'en' ? '� SEKARANTI Philosophy' : '� Filosofi SEKARANTI'}
           </span>
         </div>
 
-        {/* ── PART 5: 2-col image + koleksi narasi (alternating) ── */}
+        {/* -- PART 5: 2-col image + koleksi narasi (alternating) -- */}
         <div className="bg-[#FAF7F2]">
           {collections.map((item, i) => (
             <div
@@ -490,7 +490,7 @@ export default function Home() {
                 <ul className="space-y-2 mt-1">
                   {(lang === 'en' ? item.philosophyPointsEn : item.philosophyPoints).map((pt, pi) => (
                     <li key={pi} className="flex items-start gap-2 text-[11.5px] text-[#50443e] font-sans font-light leading-snug">
-                      <span className="text-[#D4AF37] mt-0.5 flex-shrink-0 text-xs">✦</span>
+                      <span className="text-[#D4AF37] mt-0.5 flex-shrink-0 text-xs">?</span>
                       <span>{pt}</span>
                     </li>
                   ))}
@@ -514,7 +514,7 @@ export default function Home() {
       </section>
 
       {/* ============================================
-          KONTAK — Redesigned Elegant Contact Section
+          KONTAK � Redesigned Elegant Contact Section
           ============================================ */}
       <section id="contact" className="scroll-mt-20 py-20 sm:py-32 px-4 sm:px-8 lg:px-12 bg-gradient-to-b from-[#f2e5df] via-[#faf3ef] to-[#FAF7F2] relative overflow-hidden">
 
@@ -524,7 +524,7 @@ export default function Home() {
 
         <div className="max-w-5xl mx-auto relative z-10">
 
-          {/* ── Header ── */}
+          {/* -- Header -- */}
           <div className="text-center mb-14 sm:mb-16">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/80 backdrop-blur-sm border border-[#D4AF37]/40 text-[#311908] mb-5 shadow-sm">
               <span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37] animate-pulse" />
@@ -545,10 +545,10 @@ export default function Home() {
             </p>
           </div>
 
-          {/* ── Platform Cards ── */}
+          {/* -- Platform Cards -- */}
           <div className="flex flex-col gap-4 sm:gap-5 mb-10">
 
-            {/* Row 1: WhatsApp — compact centered */}
+            {/* Row 1: WhatsApp � compact centered */}
             <div className="flex justify-center">
             <a
               href={`https://wa.me/6285727033141?text=${encodeURIComponent("halo sekaranti aku mau kenalanan dengan kamu")}`}
@@ -572,7 +572,7 @@ export default function Home() {
             </a>
             </div>
 
-            {/* Row 2: IG · TikTok · Shopee · Tokopedia — 4 kolom sejajar */}
+            {/* Row 2: IG � TikTok � Shopee � Tokopedia � 4 kolom sejajar */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-5">
 
               {/* Instagram */}
@@ -667,7 +667,7 @@ export default function Home() {
             </div>
           </div>
 
-          {/* ── Divider + tagline ── */}
+          {/* -- Divider + tagline -- */}
           <div className="flex items-center gap-4 justify-center">
             <div className="h-px flex-1 max-w-[80px] bg-gradient-to-r from-transparent to-[#D4AF37]/40" />
             <span className="text-[10px] uppercase tracking-[0.26em] font-semibold text-[#8C7D73]">
@@ -706,7 +706,7 @@ export default function Home() {
               className="absolute top-3.5 right-3.5 z-30 w-9 h-9 rounded-full bg-white/90 hover:bg-white border border-[#d4c3bb]/70 flex items-center justify-center text-[#311908] hover:text-[#9a4152] transition-colors shadow-sm cursor-pointer"
               aria-label={lang === 'en' ? 'Close' : 'Tutup'}
             >
-              ✕
+              ?
             </button>
 
             {/* Left: Interactive High-Res Artwork Panel */}
@@ -731,7 +731,7 @@ export default function Home() {
               </div>
 
               <div className="mt-3 flex items-center gap-2 text-[10.5px] text-[#8C7D73] font-sans">
-                <span>🔍</span>
+                <span>??</span>
                 <span>{zoomArtwork ? (lang === 'en' ? 'Click again for normal size' : 'Klik kembali untuk ukuran normal') : (lang === 'en' ? 'Click image to zoom artwork details' : 'Klik gambar untuk zoom detail karya seni')}</span>
               </div>
             </div>
@@ -740,7 +740,7 @@ export default function Home() {
             <div className="md:w-5/12 p-6 sm:p-7 flex flex-col justify-between overflow-y-auto">
               <div>
                 <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#6B1D2F]/10 border border-[#6B1D2F]/20 text-[#6B1D2F] text-[9.5px] tracking-widest uppercase font-semibold">
-                  <span>✦</span>
+                  <span>?</span>
                   <span>{lang === 'en' ? 'EXCLUSIVE ARTWORK' : 'KARYA SENI EKSKLUSIF'}</span>
                 </div>
 
@@ -748,7 +748,7 @@ export default function Home() {
                   {inspectPattern.name}
                 </h3>
                 <span className="text-xs text-[#8C7D73] font-serif italic block mt-0.5">
-                  {inspectPattern.alias} — {inspectPattern.colorName}
+                  {inspectPattern.alias} � {inspectPattern.colorName}
                 </span>
 
                 <div className="h-px bg-gradient-to-r from-[#D4AF37]/50 via-[#d4c3bb]/60 to-transparent my-3.5" />
@@ -767,7 +767,7 @@ export default function Home() {
                   <ul className="space-y-2 pt-1 border-t border-[#d4c3bb]/40">
                     {(lang === 'en' ? inspectPattern.philosophyPointsEn : inspectPattern.philosophyPoints).map((pt, i) => (
                       <li key={i} className="flex items-start gap-2 text-[11px] text-[#50443e] leading-snug">
-                        <span className="text-[#D4AF37] mt-0.5 flex-shrink-0">✦</span>
+                        <span className="text-[#D4AF37] mt-0.5 flex-shrink-0">?</span>
                         <span>{pt}</span>
                       </li>
                     ))}
@@ -778,7 +778,7 @@ export default function Home() {
               {/* Bottom Specs & CTA Link */}
               <div className="pt-5 mt-5 border-t border-[#d4c3bb]/50">
                 <div className="flex items-center justify-between text-[11px] text-[#8C7D73] mb-3 font-sans">
-                  <span>{lang === 'en' ? 'Size:' : 'Ukuran:'} <strong className="text-[#311908] font-semibold">110 × 110 cm</strong></span>
+                  <span>{lang === 'en' ? 'Size:' : 'Ukuran:'} <strong className="text-[#311908] font-semibold">110 � 110 cm</strong></span>
                   <span>Finishing: <strong className="text-[#311908] font-semibold">{lang === 'en' ? 'Precision Edge Stitch' : 'Jahit Tepi Presisi'}</strong></span>
                 </div>
 
