@@ -1,4 +1,4 @@
-xport type ProductImage = {
+﻿export type ProductImage = {
   src: string;
   alt: string;
   label?: string;
