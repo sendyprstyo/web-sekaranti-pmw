@@ -163,12 +163,16 @@ export default function CollectionDetailContent({
                 <span className="text-2xl sm:text-3xl font-sans font-bold text-[#1c1c19]">
                   {PRODUCT_PRICE_LABEL}
                 </span>
-                <span className="text-sm font-sans text-[#8C7D73] line-through">
-                  {PRODUCT_ORIGINAL_PRICE_LABEL}
-                </span>
-                <span className="px-2 py-0.5 rounded-full bg-[#6B1D2F] text-white text-[10px] font-sans font-bold tracking-wider">
-                  {collection.discount}
-                </span>
+                {PRODUCT_ORIGINAL_PRICE_LABEL && (
+                  <span className="text-sm font-sans text-[#8C7D73] line-through">
+                    {PRODUCT_ORIGINAL_PRICE_LABEL}
+                  </span>
+                )}
+                {collection.discount && (
+                  <span className="px-2 py-0.5 rounded-full bg-[#6B1D2F] text-white text-[10px] font-sans font-bold tracking-wider">
+                    {collection.discount}
+                  </span>
+                )}
               </div>
             </div>
 
@@ -539,10 +543,12 @@ export default function CollectionDetailContent({
                   />
                 </Link>
 
-                {/* Discount Badge (Top Left) */}
-                <div className="absolute top-2.5 sm:top-3 left-2.5 sm:left-3 z-10 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-md bg-[#6B1D2F] text-white text-[9px] sm:text-[10px] font-sans font-bold tracking-wider shadow-sm pointer-events-none">
-                  -16%
-                </div>
+                {/* Discount Badge (Top Left) — only shown if item has a discount */}
+                {item.discount && (
+                  <div className="absolute top-2.5 sm:top-3 left-2.5 sm:left-3 z-10 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-md bg-[#6B1D2F] text-white text-[9px] sm:text-[10px] font-sans font-bold tracking-wider shadow-sm pointer-events-none">
+                    {item.discount}
+                  </div>
+                )}
               </div>
 
               {/* Card Caption Under Image */}
@@ -560,9 +566,11 @@ export default function CollectionDetailContent({
                   <span className="text-xs sm:text-sm font-semibold text-[#1c1c19]">
                     {PRODUCT_PRICE_LABEL}
                   </span>
-                  <span className="text-[11px] text-[#8C7D73] line-through">
-                    {PRODUCT_ORIGINAL_PRICE_LABEL}
-                  </span>
+                  {PRODUCT_ORIGINAL_PRICE_LABEL && (
+                    <span className="text-[11px] text-[#8C7D73] line-through">
+                      {PRODUCT_ORIGINAL_PRICE_LABEL}
+                    </span>
+                  )}
                 </div>
               </Link>
             </div>

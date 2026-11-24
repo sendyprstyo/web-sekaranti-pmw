@@ -30,10 +30,10 @@ export type Collection = {
   gallery: ProductImage[];
 };
 
-export const PRODUCT_PRICE = 149_000;
-export const PRODUCT_ORIGINAL_PRICE = 175_000;
+export const PRODUCT_PRICE = 67_000;
+export const PRODUCT_ORIGINAL_PRICE = 0;
 export const PRODUCT_PRICE_LABEL = `Rp${PRODUCT_PRICE.toLocaleString("id-ID")}`;
-export const PRODUCT_ORIGINAL_PRICE_LABEL = `Rp${PRODUCT_ORIGINAL_PRICE.toLocaleString("id-ID")}`;
+export const PRODUCT_ORIGINAL_PRICE_LABEL = ``;
 export const PRODUCT_MATERIAL = "Viscose";
 export const PRODUCT_SIZE = "110 × 110 cm";
 export const PRODUCT_FINISHING = "Jahitan tepi rapi dan kuat";
@@ -52,7 +52,7 @@ const collections: Collection[] = [
     tag: "HIJAB SEGIEMPAT",
     price: PRODUCT_PRICE,
     originalPrice: PRODUCT_ORIGINAL_PRICE,
-    discount: "-15%",
+    discount: "",
     visualDescription: "Motif floral bernuansa merah muda lembut dengan detail bunga puspa mekar dan kupu-kupu.",
     visualDescriptionEn: "Floral motifs in serene soft blush pink with blossoming flowers and butterfly details.",
     philosophyStory:
@@ -123,7 +123,7 @@ const collections: Collection[] = [
     tag: "HIJAB SEGIEMPAT",
     price: PRODUCT_PRICE,
     originalPrice: PRODUCT_ORIGINAL_PRICE,
-    discount: "-15%",
+    discount: "",
     visualDescription: "Motif floral bernuansa merah marun mendalam dengan keteraturan pola berulang.",
     visualDescriptionEn: "Floral motifs in rich wine burgundy with repeating classical patterns.",
     philosophyStory:
@@ -194,7 +194,7 @@ const collections: Collection[] = [
     tag: "HIJAB SEGIEMPAT",
     price: PRODUCT_PRICE,
     originalPrice: PRODUCT_ORIGINAL_PRICE,
-    discount: "-15%",
+    discount: "",
     visualDescription: "Motif floral dalam nuansa merah muda dan hijau pastel dengan sentuhan geometris samar.",
     visualDescriptionEn: "Floral motifs in rose and sage green pastel tones with subtle geometric accents.",
     philosophyStory:
@@ -265,7 +265,7 @@ const collections: Collection[] = [
     tag: "HIJAB SEGIEMPAT",
     price: PRODUCT_PRICE,
     originalPrice: PRODUCT_ORIGINAL_PRICE,
-    discount: "-15%",
+    discount: "",
     visualDescription: "Motif floral bernuansa biru samudera dan ornamen awan mega mendung.",
     visualDescriptionEn: "Floral motifs in oceanic blue gradients with traditional cloud (mega mendung) ornaments.",
     philosophyStory:
