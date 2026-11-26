@@ -1,7 +1,7 @@
 'use client';
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { type TouchEvent, useEffect, useRef, useState } from "react";
 import { useLanguage } from "../lib/language-context";
 import { PMW_BAZAAR_PHOTOS, PMW_PARTNERS } from "../lib/pmw-bazaar";
 
@@ -9,14 +9,51 @@ interface PmwBazaarSectionProps {
   variant?: "home" | "about";
 }
 
+function LightboxArrowIcon({ direction }: { direction: "prev" | "next" }) {
+  return (
+    <svg
+      className="w-4 h-4"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.9"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d={direction === "prev" ? "M15 18l-6-6 6-6" : "M9 18l6-6-6-6"} />
+    </svg>
+  );
+}
+
+function LightboxCloseIcon() {
+  return (
+    <svg
+      className="w-4 h-4"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.9"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M18 6L6 18" />
+      <path d="M6 6l12 12" />
+    </svg>
+  );
+}
+
 export default function PmwBazaarSection({ variant = "home" }: PmwBazaarSectionProps) {
   const { lang } = useLanguage();
   const isEn = lang === "en";
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
 
   const featuredPhoto = PMW_BAZAAR_PHOTOS[0];
   const galleryPhotos = PMW_BAZAAR_PHOTOS.slice(1);
   const activePhoto = activeIndex !== null ? PMW_BAZAAR_PHOTOS[activeIndex] : null;
+  const isPortraitOrSquare = activePhoto ? activePhoto.height >= activePhoto.width : true;
 
   useEffect(() => {
     if (activeIndex === null) {
@@ -62,6 +99,66 @@ export default function PmwBazaarSection({ variant = "home" }: PmwBazaarSectionP
       prev === null ? 0 : (prev + 1) % PMW_BAZAAR_PHOTOS.length
     );
   };
+
+  const handleTouchStart = (event: TouchEvent<HTMLDivElement>) => {
+    const touch = event.touches[0];
+    if (!touch) return;
+    touchStartRef.current = { x: touch.clientX, y: touch.clientY };
+  };
+
+  const handleTouchEnd = (event: TouchEvent<HTMLDivElement>) => {
+    const start = touchStartRef.current;
+    touchStartRef.current = null;
+    const touch = event.changedTouches[0];
+    if (!start || !touch) return;
+
+    const deltaX = touch.clientX - start.x;
+    const deltaY = touch.clientY - start.y;
+    if (Math.abs(deltaX) < 44 || Math.abs(deltaX) <= Math.abs(deltaY) * 1.2) {
+      return;
+    }
+
+    if (deltaX < 0) {
+      showNext();
+    } else {
+      showPrev();
+    }
+  };
+
+  const renderCounterBadge = (extraClassName: string) => {
+    if (!activePhoto || activeIndex === null) return null;
+    return (
+      <div
+        className={`items-center gap-2 px-3 py-1 rounded-full bg-[#6B1D2F]/10 border border-[#6B1D2F]/20 text-[#6B1D2F] text-[9.5px] tracking-widest uppercase font-semibold max-w-full ${extraClassName}`}
+      >
+        <span className="shrink-0">
+          0{activeIndex + 1} / 0{PMW_BAZAAR_PHOTOS.length}
+        </span>
+        <span className="shrink-0">·</span>
+        <span className="truncate">
+          {isEn ? activePhoto.tagEn : activePhoto.tagId}
+        </span>
+      </div>
+    );
+  };
+
+  const paginationDots = (
+    <div className="flex items-center gap-1.5">
+      {PMW_BAZAAR_PHOTOS.map((item, idx) => (
+        <button
+          key={item.id}
+          type="button"
+          onClick={() => setActiveIndex(idx)}
+          aria-label={`${isEn ? "Open photo" : "Buka foto"} ${idx + 1}`}
+          className={`h-1.5 rounded-full transition-all cursor-pointer ${
+            idx === activeIndex
+              ? "w-7 bg-[#311908]"
+              : "w-2 bg-[#d4c3bb] hover:bg-[#8C7D73]"
+          }`}
+        />
+      ))}
+    </div>
+  );
 
   return (
     <section
@@ -366,124 +463,171 @@ export default function PmwBazaarSection({ variant = "home" }: PmwBazaarSectionP
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="relative max-w-4xl w-full bg-[#FAF7F2] rounded-3xl overflow-hidden shadow-2xl border border-[#D4AF37]/40 flex flex-col md:flex-row max-h-[92vh] animate-menu-drop"
+            className="relative max-w-4xl w-full bg-[#FAF7F2] rounded-[26px] sm:rounded-3xl overflow-hidden shadow-2xl border border-[#D4AF37]/40 flex flex-col max-h-[90dvh] md:max-h-[92vh] animate-menu-drop"
           >
-            {/* Close Button */}
-            <button
-              type="button"
-              onClick={() => setActiveIndex(null)}
-              className="absolute top-3.5 right-3.5 z-30 w-9 h-9 rounded-full bg-white/95 hover:bg-white border border-[#d4c3bb]/70 flex items-center justify-center text-[#311908] hover:text-[#9a4152] transition-colors shadow-sm cursor-pointer"
-              aria-label={isEn ? "Close documentation view" : "Tutup tampilan dokumentasi"}
-            >
-              ✕
-            </button>
-
-            {/* Left: Full Uncropped Image Stage */}
-            <div className="md:w-7/12 bg-[#1c1c19] relative flex items-center justify-center p-3 sm:p-5 min-h-[340px] sm:min-h-[460px]">
-              <div className="relative w-full h-[48vh] md:h-[72vh] max-h-[600px]">
-                <Image
-                  key={activePhoto.src}
-                  src={activePhoto.src}
-                  alt={isEn ? activePhoto.titleEn : activePhoto.titleId}
-                  fill
-                  sizes="(max-width: 768px) 92vw, 520px"
-                  className="object-contain"
-                  priority
-                />
-              </div>
-
-              {/* Prev / Next Controls */}
+            {/* Mobile Header Bar — Keeps Counter & Close Action Cleanly Separated */}
+            <div className="md:hidden shrink-0 flex items-center justify-between gap-3 px-4 py-3 bg-[#FAF7F2] border-b border-[#d4c3bb]/45">
+              {renderCounterBadge("inline-flex min-w-0")}
               <button
                 type="button"
-                onClick={showPrev}
-                className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 hover:bg-white text-[#311908] flex items-center justify-center shadow-md transition-transform hover:scale-105 cursor-pointer"
-                aria-label={isEn ? "Previous photo" : "Foto sebelumnya"}
+                onClick={() => setActiveIndex(null)}
+                className="shrink-0 w-8 h-8 rounded-full bg-white hover:bg-[#F2EDE4] border border-[#d4c3bb]/80 flex items-center justify-center text-[#311908] hover:text-[#9a4152] transition-colors shadow-2xs cursor-pointer"
+                aria-label={isEn ? "Close documentation view" : "Tutup tampilan dokumentasi"}
               >
-                ‹
-              </button>
-              <button
-                type="button"
-                onClick={showNext}
-                className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 hover:bg-white text-[#311908] flex items-center justify-center shadow-md transition-transform hover:scale-105 cursor-pointer"
-                aria-label={isEn ? "Next photo" : "Foto berikutnya"}
-              >
-                ›
+                <LightboxCloseIcon />
               </button>
             </div>
 
-            {/* Right: Documentation Story & Attribution */}
-            <div className="md:w-5/12 p-6 sm:p-7 flex flex-col justify-between overflow-y-auto">
-              <div>
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#6B1D2F]/10 border border-[#6B1D2F]/20 text-[#6B1D2F] text-[9.5px] tracking-widest uppercase font-semibold">
-                  <span>0{activeIndex + 1} / 0{PMW_BAZAAR_PHOTOS.length}</span>
-                  <span>·</span>
-                  <span>{isEn ? activePhoto.tagEn : activePhoto.tagId}</span>
+            {/* Desktop Close Button */}
+            <button
+              type="button"
+              onClick={() => setActiveIndex(null)}
+              className="hidden md:flex absolute top-3.5 right-3.5 z-30 w-9 h-9 rounded-full bg-white/95 hover:bg-white border border-[#d4c3bb]/70 items-center justify-center text-[#311908] hover:text-[#9a4152] transition-colors shadow-sm cursor-pointer"
+              aria-label={isEn ? "Close documentation view" : "Tutup tampilan dokumentasi"}
+            >
+              <LightboxCloseIcon />
+            </button>
+
+            {/* Scrollable Body on Mobile / Split Columns on Desktop */}
+            <div className="flex-1 min-h-0 overflow-y-auto md:overflow-hidden flex flex-col md:flex-row">
+              {/* Left / Top: Full Uncropped Image Stage */}
+              <div
+                onTouchStart={handleTouchStart}
+                onTouchEnd={handleTouchEnd}
+                className="relative shrink-0 md:shrink md:w-7/12 bg-[#ECE4D8] flex items-center justify-center px-4 py-3.5 sm:p-6 md:border-r md:border-[#d4c3bb]/50 overflow-hidden touch-pan-y"
+              >
+                {/* Soft Ambient Photo Halo — Replaces Harsh Dark Sidebars */}
+                <Image
+                  key={`${activePhoto.src}-ambient`}
+                  src={activePhoto.src}
+                  alt=""
+                  fill
+                  sizes="(max-width: 768px) 92vw, 520px"
+                  aria-hidden="true"
+                  className="object-cover scale-110 blur-2xl opacity-30 saturate-125 pointer-events-none select-none"
+                />
+                <div
+                  aria-hidden="true"
+                  className="absolute inset-0 bg-gradient-to-b from-[#FAF7F2]/35 via-[#ECE4D8]/25 to-[#311908]/12 pointer-events-none"
+                />
+
+                <div className="relative z-10 w-full h-[43dvh] min-h-[240px] max-h-[410px] sm:h-[52dvh] sm:max-h-[480px] md:h-[70vh] md:max-h-[600px] flex items-center justify-center">
+                  <div
+                    style={{ aspectRatio: `${activePhoto.width} / ${activePhoto.height}` }}
+                    className={`relative overflow-hidden rounded-2xl bg-[#E4DBD0] shadow-[0_14px_38px_rgba(49,25,8,0.22)] ring-1 ring-[#311908]/12 ${
+                      isPortraitOrSquare ? "h-full max-w-full" : "w-full max-h-full"
+                    }`}
+                  >
+                    <Image
+                      key={activePhoto.src}
+                      src={activePhoto.src}
+                      alt={isEn ? activePhoto.titleEn : activePhoto.titleId}
+                      fill
+                      sizes="(max-width: 768px) 84vw, 520px"
+                      className="object-contain select-none"
+                      priority
+                    />
+                  </div>
                 </div>
 
-                <h3 className="text-2xl sm:text-3xl font-display font-normal text-[#1c1c19] mt-3 leading-snug">
-                  {isEn ? activePhoto.titleEn : activePhoto.titleId}
-                </h3>
+                {/* Desktop Prev / Next Controls */}
+                <button
+                  type="button"
+                  onClick={showPrev}
+                  className="hidden md:flex absolute z-20 left-3.5 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/92 hover:bg-white border border-[#d4c3bb]/60 text-[#311908] items-center justify-center shadow-md transition-transform hover:scale-105 cursor-pointer"
+                  aria-label={isEn ? "Previous photo" : "Foto sebelumnya"}
+                >
+                  <LightboxArrowIcon direction="prev" />
+                </button>
+                <button
+                  type="button"
+                  onClick={showNext}
+                  className="hidden md:flex absolute z-20 right-3.5 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/92 hover:bg-white border border-[#d4c3bb]/60 text-[#311908] items-center justify-center shadow-md transition-transform hover:scale-105 cursor-pointer"
+                  aria-label={isEn ? "Next photo" : "Foto berikutnya"}
+                >
+                  <LightboxArrowIcon direction="next" />
+                </button>
+              </div>
 
-                <div className="h-px bg-gradient-to-r from-[#D4AF37]/60 via-[#d4c3bb]/60 to-transparent my-4" />
+              {/* Mobile Navigation Strip — Thumb-Friendly & Always Visible Below Photo */}
+              <div className="md:hidden shrink-0 flex items-center justify-between gap-3 px-4 py-2.5 bg-[#FAF7F2] border-y border-[#d4c3bb]/45">
+                <button
+                  type="button"
+                  onClick={showPrev}
+                  className="w-9 h-9 rounded-full bg-white hover:bg-[#F2EDE4] border border-[#d4c3bb]/80 text-[#311908] flex items-center justify-center shadow-2xs active:scale-95 transition-transform cursor-pointer"
+                  aria-label={isEn ? "Previous photo" : "Foto sebelumnya"}
+                >
+                  <LightboxArrowIcon direction="prev" />
+                </button>
 
-                <p className="text-xs sm:text-sm text-[#50443e] font-sans font-light leading-relaxed">
-                  {isEn ? activePhoto.captionEn : activePhoto.captionId}
-                </p>
+                {paginationDots}
 
-                {/* Partner Logos Attribution inside Lightbox */}
-                <div className="mt-6 pt-4 border-t border-[#d4c3bb]/50">
-                  <span className="text-[9px] uppercase tracking-[0.22em] font-semibold text-[#8C7D73] block mb-2.5">
-                    {isEn ? "Official Bazaar Event" : "Gelaran Resmi"}
-                  </span>
-                  <div className="flex items-center gap-3">
-                    {PMW_PARTNERS.map((partner) => (
-                      <div
-                        key={partner.id}
-                        className={`rounded-lg bg-white border border-[#d4c3bb]/60 flex items-center justify-center overflow-hidden ${
-                          partner.id === "pmw-polines"
-                            ? "w-20 h-10 px-1.5 py-1"
-                            : "w-10 h-10 p-1"
-                        }`}
-                      >
-                        <Image
-                          src={partner.src}
-                          alt={partner.name}
-                          width={partner.width}
-                          height={partner.height}
-                          className="w-full h-full object-contain"
-                        />
+                <button
+                  type="button"
+                  onClick={showNext}
+                  className="w-9 h-9 rounded-full bg-white hover:bg-[#F2EDE4] border border-[#d4c3bb]/80 text-[#311908] flex items-center justify-center shadow-2xs active:scale-95 transition-transform cursor-pointer"
+                  aria-label={isEn ? "Next photo" : "Foto berikutnya"}
+                >
+                  <LightboxArrowIcon direction="next" />
+                </button>
+              </div>
+
+              {/* Right / Bottom: Documentation Story & Attribution */}
+              <div className="md:w-5/12 px-4 pt-3.5 pb-5 sm:p-7 flex flex-col justify-between md:overflow-y-auto">
+                <div>
+                  {renderCounterBadge("hidden md:inline-flex")}
+
+                  <h3 className="text-xl sm:text-2xl md:text-3xl font-display font-normal text-[#1c1c19] md:mt-3 leading-snug">
+                    {isEn ? activePhoto.titleEn : activePhoto.titleId}
+                  </h3>
+
+                  <div className="h-px bg-gradient-to-r from-[#D4AF37]/60 via-[#d4c3bb]/60 to-transparent my-2.5 sm:my-4" />
+
+                  <p className="text-[13px] sm:text-sm text-[#50443e] font-sans font-light leading-relaxed">
+                    {isEn ? activePhoto.captionEn : activePhoto.captionId}
+                  </p>
+
+                  {/* Partner Logos Attribution inside Lightbox */}
+                  <div className="mt-4 sm:mt-6 pt-3.5 sm:pt-4 border-t border-[#d4c3bb]/50">
+                    <span className="text-[9px] uppercase tracking-[0.22em] font-semibold text-[#8C7D73] block mb-2.5">
+                      {isEn ? "Official Bazaar Event" : "Gelaran Resmi"}
+                    </span>
+                    <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
+                      {PMW_PARTNERS.map((partner) => (
+                        <div
+                          key={partner.id}
+                          className={`rounded-lg bg-white border border-[#d4c3bb]/60 flex items-center justify-center overflow-hidden ${
+                            partner.id === "pmw-polines"
+                              ? "w-20 h-10 px-1.5 py-1"
+                              : "w-10 h-10 p-1"
+                          }`}
+                        >
+                          <Image
+                            src={partner.src}
+                            alt={partner.name}
+                            width={partner.width}
+                            height={partner.height}
+                            className="w-full h-full object-contain"
+                          />
+                        </div>
+                      ))}
+                      <div className="text-[11px] text-[#50443e] leading-tight">
+                        <strong className="font-semibold text-[#311908] block">
+                          PMW Polines
+                        </strong>
+                        <span>Politeknik Negeri Semarang</span>
                       </div>
-                    ))}
-                    <div className="text-[11px] text-[#50443e] leading-tight">
-                      <strong className="font-semibold text-[#311908] block">
-                        PMW Polines
-                      </strong>
-                      <span>Politeknik Negeri Semarang</span>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Thumbnail Strip Dots */}
-              <div className="pt-5 mt-6 border-t border-[#d4c3bb]/50 flex items-center justify-between gap-3">
-                <div className="flex items-center gap-1.5">
-                  {PMW_BAZAAR_PHOTOS.map((item, idx) => (
-                    <button
-                      key={item.id}
-                      type="button"
-                      onClick={() => setActiveIndex(idx)}
-                      aria-label={`${isEn ? "Open photo" : "Buka foto"} ${idx + 1}`}
-                      className={`h-1.5 rounded-full transition-all cursor-pointer ${
-                        idx === activeIndex
-                          ? "w-7 bg-[#311908]"
-                          : "w-2 bg-[#d4c3bb] hover:bg-[#8C7D73]"
-                      }`}
-                    />
-                  ))}
+                {/* Desktop Thumbnail Strip Dots */}
+                <div className="hidden md:flex pt-5 mt-6 border-t border-[#d4c3bb]/50 items-center justify-between gap-3">
+                  {paginationDots}
+                  <span className="text-[10px] uppercase tracking-[0.18em] text-[#8C7D73] font-medium">
+                    {isEn ? "SEKARANTI Debut" : "Bazar Perdana"}
+                  </span>
                 </div>
-                <span className="text-[10px] uppercase tracking-[0.18em] text-[#8C7D73] font-medium">
-                  {isEn ? "SEKARANTI Debut" : "Bazar Perdana"}
-                </span>
               </div>
             </div>
           </div>
