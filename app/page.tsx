@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import HeroSlider from "../components/hero-slider";
+import PmwBazaarSection from "../components/pmw-bazaar-section";
 import {
   Collection,
   getCollections,
@@ -512,6 +513,11 @@ export default function Home() {
         </div>
 
       </section>
+
+      {/* ============================================
+          BAZAR PERDANA — Dokumentasi PMW Polines
+          ============================================ */}
+      <PmwBazaarSection variant="home" />
 
       {/* ============================================
           KONTAK — Redesigned Elegant Contact Section

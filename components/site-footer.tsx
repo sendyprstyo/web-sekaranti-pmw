@@ -41,10 +41,24 @@ export default function SiteFooter() {
               {t.footer.brandBio}
             </p>
 
-            {/* Semarang COD Badge */}
-            <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-[#311908]/90 border border-[#D4AF37]/40 text-[#FAF7F2] text-xs shadow-sm mt-1">
-              <span className="w-2 h-2 rounded-full bg-[#D4AF37] animate-pulse" />
-              <span className="text-[11px] font-medium tracking-wide">{t.footer.codBadge}</span>
+            {/* Semarang COD Badge & PMW Support Badge */}
+            <div className="flex flex-wrap items-center gap-2 pt-1">
+              <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-[#311908]/90 border border-[#D4AF37]/40 text-[#FAF7F2] text-xs shadow-sm">
+                <span className="w-2 h-2 rounded-full bg-[#D4AF37] animate-pulse" />
+                <span className="text-[11px] font-medium tracking-wide">{t.footer.codBadge}</span>
+              </div>
+              <Link
+                href="/#bazar-pmw"
+                onClick={() => {
+                  if (typeof window !== "undefined") {
+                    sessionStorage.setItem("scroll_to_hash", "bazar-pmw");
+                  }
+                }}
+                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-[#D4AF37]/30 text-[#F2EDE4]/90 text-[11px] font-medium tracking-wide transition-colors"
+              >
+                <span className="text-[#D4AF37]">✦</span>
+                <span>{t.nav.bazarPmw}</span>
+              </Link>
             </div>
           </div>
 
@@ -95,6 +109,19 @@ export default function SiteFooter() {
                   className="text-[#F2EDE4]/80 hover:text-white transition-colors"
                 >
                   {t.nav.collections}
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/#bazar-pmw"
+                  onClick={() => {
+                    if (typeof window !== "undefined") {
+                      sessionStorage.setItem("scroll_to_hash", "bazar-pmw");
+                    }
+                  }}
+                  className="text-[#F2EDE4]/80 hover:text-white transition-colors"
+                >
+                  {t.nav.bazarPmw}
                 </Link>
               </li>
               <li>

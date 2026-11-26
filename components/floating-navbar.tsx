@@ -37,7 +37,7 @@ export default function FloatingNavbar() {
       const hashFromSession = typeof window !== "undefined" ? sessionStorage.getItem("scroll_to_hash") : null;
       const targetId = hashFromUrl || hashFromSession;
 
-      if (targetId === "collections" || targetId === "contact" || targetId === "tentang-kami") {
+      if (targetId === "collections" || targetId === "contact" || targetId === "tentang-kami" || targetId === "bazar-pmw") {
         if (hashFromSession) {
           sessionStorage.removeItem("scroll_to_hash");
         }

@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import PmwBazaarSection from "./pmw-bazaar-section";
 import { getCollections, whatsappHref, INSTAGRAM_URL, PRODUCT_MATERIAL, PRODUCT_SIZE, PRODUCT_FINISHING } from "../lib/collections";
 import { useLanguage } from "../lib/language-context";
 
@@ -56,6 +57,12 @@ const TIMELINE = [
     yearEn: "Debut Collection",
     descId: "Empat koleksi perdana — Puspa Raras, Sekar Wengi, Taman Sari Sekar, dan Tirta Sekar — diluncurkan dengan masing-masing membawa filosofi dan palet warna yang unik.",
     descEn: "Four debut collections — Puspa Raras, Sekar Wengi, Taman Sari Sekar, and Tirta Sekar — launched each carrying a unique philosophy and colour palette.",
+  },
+  {
+    yearId: "Bazar Perdana · PMW Polines",
+    yearEn: "Debut Bazaar · PMW Polines",
+    descId: "SEKARANTI melangkah ke ruang luring untuk pertama kalinya melalui bazar Program Mahasiswa Wirausaha (PMW) Politeknik Negeri Semarang, mempertemukan koleksi kami langsung dengan pelanggan perdana.",
+    descEn: "SEKARANTI made our first offline debut at the Politeknik Negeri Semarang Student Entrepreneurship Program (PMW) bazaar, connecting our collections directly with our first customers.",
   },
   {
     yearId: "Hari Ini",
@@ -520,6 +527,11 @@ export default function AboutContent() {
           </div>
         </div>
       </section>
+
+      {/* ============================================
+          BAZAR PERDANA — Dokumentasi PMW Polines
+          ============================================ */}
+      <PmwBazaarSection variant="about" />
 
       {/* ============================================
           CTA SECTION — Kontak & Order
