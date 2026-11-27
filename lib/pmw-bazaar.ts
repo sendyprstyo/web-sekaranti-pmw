@@ -122,4 +122,19 @@ export const PMW_BAZAAR_PHOTOS: PmwBazaarPhoto[] = [
     captionEn:
       "Candid smiles and teamwork from SEKARANTI in front of our debut booth throughout the PMW Polines bazaar.",
   },
+  {
+    id: "kholida-pouch",
+    src: "/assets/foto%20pmw/kholida.jpg",
+    width: 1440,
+    height: 2560,
+    objectPosition: "center 45%",
+    tagId: "Pelanggan & Dukungan",
+    tagEn: "Customer & Support",
+    titleId: "Apresiasi Hangat dari Kholida",
+    titleEn: "Warm Support from Kholida",
+    captionId:
+      "Kholida berpose bersama kemasan pouch SEKARANTI dengan acungan jempol—menjadi bukti antusiasme dan dukungan hangat di momen bazar PMW Polines.",
+    captionEn:
+      "Kholida posing with a signature SEKARANTI pouch and a thumbs-up—capturing the warm support and enthusiasm around our PMW Polines bazaar milestone.",
+  },
 ];

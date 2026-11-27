@@ -54,6 +54,8 @@ export default function PmwBazaarSection({ variant = "home" }: PmwBazaarSectionP
   const galleryPhotos = PMW_BAZAAR_PHOTOS.slice(1);
   const activePhoto = activeIndex !== null ? PMW_BAZAAR_PHOTOS[activeIndex] : null;
   const isPortraitOrSquare = activePhoto ? activePhoto.height >= activePhoto.width : true;
+  const formatPhotoNumber = (num: number) => String(num).padStart(2, "0");
+  const totalPhotosLabel = formatPhotoNumber(PMW_BAZAAR_PHOTOS.length);
 
   useEffect(() => {
     if (activeIndex === null) {
@@ -132,7 +134,7 @@ export default function PmwBazaarSection({ variant = "home" }: PmwBazaarSectionP
         className={`items-center gap-2 px-3 py-1 rounded-full bg-[#6B1D2F]/10 border border-[#6B1D2F]/20 text-[#6B1D2F] text-[9.5px] tracking-widest uppercase font-semibold max-w-full ${extraClassName}`}
       >
         <span className="shrink-0">
-          0{activeIndex + 1} / 0{PMW_BAZAAR_PHOTOS.length}
+          {formatPhotoNumber(activeIndex + 1)} / {totalPhotosLabel}
         </span>
         <span className="shrink-0">·</span>
         <span className="truncate">
@@ -357,13 +359,15 @@ export default function PmwBazaarSection({ variant = "home" }: PmwBazaarSectionP
         </div>
 
         {/* ============================================
-            BOTTOM 4-PHOTO EDITORIAL GALLERY STRIP
+            BOTTOM EDITORIAL GALLERY STRIP
             ============================================ */}
         <div className="mt-12 sm:mt-16 pt-10 border-t border-[#d4c3bb]/45">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-7">
             <div>
               <span className="text-[9.5px] uppercase tracking-[0.24em] font-semibold text-[#8C7D73] block mb-1">
-                {isEn ? "BAZAAR ARCHIVE · 05 MOMENTS" : "ARSIP BAZAR · 05 MOMEN"}
+                {isEn
+                  ? `BAZAAR ARCHIVE · ${totalPhotosLabel} MOMENTS`
+                  : `ARSIP BAZAR · ${totalPhotosLabel} MOMEN`}
               </span>
               <h3 className="font-display text-2xl sm:text-3xl text-[#1c1c19] font-normal">
                 {isEn ? (
@@ -386,7 +390,7 @@ export default function PmwBazaarSection({ variant = "home" }: PmwBazaarSectionP
             </p>
           </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-5">
             {galleryPhotos.map((photo, idx) => {
               const photoIndex = idx + 1;
               return (
@@ -404,12 +408,12 @@ export default function PmwBazaarSection({ variant = "home" }: PmwBazaarSectionP
                       src={photo.src}
                       alt={isEn ? photo.titleEn : photo.titleId}
                       fill
-                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 25vw"
+                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
                       style={{ objectPosition: photo.objectPosition }}
                       className="object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
                     />
                     <span className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-full bg-white/88 backdrop-blur-sm text-[#311908] text-[9px] font-bold tracking-widest border border-[#d4c3bb]/60">
-                      0{photoIndex + 1}
+                      {formatPhotoNumber(photoIndex + 1)}
                     </span>
                     <span className="absolute top-2.5 right-2.5 w-7 h-7 rounded-full bg-[#1F1D1A]/60 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm">
                       <svg
