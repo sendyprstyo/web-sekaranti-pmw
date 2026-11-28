@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Plus_Jakarta_Sans } from "next/font/google";
+import { Suspense } from "react";
 import { SiteFooter, SiteHeader } from "../components/site-chrome";
 import { LanguageProvider } from "../lib/language-context";
 import IntroScreen from "../components/intro-screen";
@@ -84,10 +85,16 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html lang="id" className={`${playfair.variable} ${plusJakarta.variable} scroll-smooth`}>
       <body className="font-sans antialiased bg-[#fcf9f4] text-[#1c1c19] overflow-x-hidden">
         <LanguageProvider>
-          <IntroScreen />
-          <SiteHeader />
+          <Suspense fallback={null}>
+            <IntroScreen />
+          </Suspense>
+          <Suspense fallback={null}>
+            <SiteHeader />
+          </Suspense>
           <main>{children}</main>
-          <SiteFooter />
+          <Suspense fallback={null}>
+            <SiteFooter />
+          </Suspense>
         </LanguageProvider>
       </body>
     </html>
