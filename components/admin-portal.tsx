@@ -18,6 +18,7 @@ import {
   AdminStats,
   AdminUser,
   buildAdminCustomerWhatsappUrl,
+  parseOrderLineItems,
   resolveOrderNotaUrl,
   STATUS_BADGE_CLASSES,
 } from "../lib/admin-types";
@@ -368,11 +369,13 @@ function AdminOrderDetailModal({
           <span className="text-[10px] uppercase tracking-[0.14em] text-[#8C7D73] font-bold block">
             Rincian Motif ({order.totalQty} pcs)
           </span>
-          <p className="text-[#1c1c19]">
-            Puspa Raras: <b>{order.qtyPuspaRaras}</b> · Sekar Wengi:{" "}
-            <b>{order.qtySekarWengi}</b> · Taman Sari Sekar:{" "}
-            <b>{order.qtyTamanSariSekar}</b> · Tirta Sekar:{" "}
-            <b>{order.qtyTirtaSekar}</b>
+          <p className="text-[#1c1c19] leading-relaxed">
+            {parseOrderLineItems(order).map((item, idx) => (
+              <span key={`${item.name}-${idx}`}>
+                {idx > 0 ? " · " : ""}
+                {item.name}: <b>{item.qty}</b>
+              </span>
+            ))}
           </p>
           <p className="text-[#50443e]">
             Harga Satuan: {formatRupiah(order.unitPrice)} · Kode Diskon:{" "}

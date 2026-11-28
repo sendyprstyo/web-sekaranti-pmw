@@ -4,9 +4,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import HeroSlider from "../components/hero-slider";
+import OpenPoClosingModal from "../components/open-po-closing-modal";
 import PmwBazaarSection from "../components/pmw-bazaar-section";
 import {
-  Collection,
   getCollections,
   PRODUCT_FINISHING,
   PRODUCT_MATERIAL,
@@ -18,10 +18,120 @@ import {
   SHOPEE_URL,
   TOKOPEDIA_URL,
 } from "../lib/collections";
+import { getPoCatalogItems } from "../lib/open-po";
 import { useLanguage } from "../lib/language-context";
 
 const collections = getCollections();
 const storyCollection = collections[0]; // Puspa Raras
+
+interface ShowcasePatternItem {
+  slug: string;
+  name: string;
+  alias: string;
+  aliasEn: string;
+  colorName: string;
+  colorSwatch: string;
+  flatArtworkImage: string;
+  philosophyStory: string;
+  philosophyStoryEn: string;
+  philosophyPoints: string[];
+  philosophyPointsEn: string[];
+  hasCollectionPage: boolean;
+}
+
+const collectionsBySlug = new Map(collections.map((c) => [c.slug, c]));
+
+const showcasePatterns: ShowcasePatternItem[] = getPoCatalogItems().map(
+  (poItem) => {
+    const flagship = collectionsBySlug.get(poItem.slug);
+    if (flagship) {
+      return {
+        slug: flagship.slug,
+        name: flagship.name,
+        alias: flagship.alias,
+        aliasEn: flagship.alias,
+        colorName: flagship.colorName,
+        colorSwatch: flagship.colorSwatch,
+        flatArtworkImage: flagship.flatArtworkImage,
+        philosophyStory: flagship.philosophyStory,
+        philosophyStoryEn: flagship.philosophyStoryEn,
+        philosophyPoints: flagship.philosophyPoints,
+        philosophyPointsEn: flagship.philosophyPointsEn,
+        hasCollectionPage: true,
+      };
+    }
+
+    return {
+      slug: poItem.slug,
+      name: poItem.name,
+      alias: "Edisi Open PO Batch 1",
+      aliasEn: "Open PO Batch 1 Edition",
+      colorName: poItem.colorName,
+      colorSwatch: poItem.colorSwatch,
+      flatArtworkImage: poItem.flatArtworkImage,
+      philosophyStory: poItem.visualDescription,
+      philosophyStoryEn: poItem.visualDescriptionEn,
+      philosophyPoints: [
+        `Palet warna khas: ${poItem.colorName}`,
+        `Material ${PRODUCT_MATERIAL} (${PRODUCT_SIZE}) yang ringan, adem, dan tegak di dahi`,
+        `Finishing ${PRODUCT_FINISHING.toLowerCase()} dengan hasil printing detail presisi`,
+      ],
+      philosophyPointsEn: [
+        `Signature palette: ${poItem.colorName}`,
+        `Lightweight ${PRODUCT_MATERIAL} (${PRODUCT_SIZE}) that drapes naturally and stays neat`,
+        "Neat, durable edge stitching paired with crisp, high-precision artwork print",
+      ],
+      hasCollectionPage: false,
+    };
+  },
+);
+
+function PatternMarqueeTrack({
+  trackId,
+  ariaHidden,
+  onSelect,
+}: {
+  trackId: string;
+  ariaHidden?: boolean;
+  onSelect: (item: ShowcasePatternItem) => void;
+}) {
+  return (
+    <div
+      className="flex items-center gap-5 sm:gap-7 pr-5 sm:pr-7"
+      aria-hidden={ariaHidden}
+    >
+      {showcasePatterns.map((item, idx) => (
+        <div
+          key={`pattern-${trackId}-${item.slug}-${idx}`}
+          onClick={() => onSelect(item)}
+          className="group w-[240px] sm:w-[280px] lg:w-[305px] flex-shrink-0 bg-white rounded-2xl overflow-hidden border border-[#d4c3bb]/60 hover:border-[#D4AF37] shadow-sm hover:shadow-xl transition-all duration-500 cursor-pointer hover:-translate-y-1.5"
+        >
+          <div className="relative aspect-square overflow-hidden bg-[#FAF7F2]">
+            <Image
+              src={item.flatArtworkImage}
+              alt={`Artwork desain ${item.name}`}
+              fill
+              sizes="(max-width: 640px) 240px, 310px"
+              className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+            />
+          </div>
+          <div className="p-3.5 text-center bg-white border-t border-[#f0ede9]">
+            <h4 className="text-sm font-display font-bold text-[#1c1c19] group-hover:text-[#9a4152] transition-colors">
+              {item.name}
+            </h4>
+            <div className="flex items-center justify-center gap-1.5 mt-1 text-[11px] text-[#8C7D73] font-sans">
+              <span
+                className="w-2 h-2 rounded-full border border-black/10 inline-block flex-shrink-0"
+                style={{ backgroundColor: item.colorSwatch }}
+              />
+              <span className="truncate">{item.colorName}</span>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 const collectionDescriptionsEn: Record<string, string> = {
   "puspa-raras": "Floral motifs in serene soft blush pink.",
@@ -41,8 +151,20 @@ function ArrowIcon({ className = "w-4 h-4" }: { className?: string }) {
 export default function Home() {
   const { lang, t } = useLanguage();
   const [favorites, setFavorites] = useState<string[]>([]);
-  const [inspectPattern, setInspectPattern] = useState<Collection | null>(null);
+  const [inspectPattern, setInspectPattern] =
+    useState<ShowcasePatternItem | null>(null);
   const [zoomArtwork, setZoomArtwork] = useState(false);
+  const [showPoPopup, setShowPoPopup] = useState(false);
+
+  useEffect(() => {
+    const introSeen = Boolean(sessionStorage.getItem("sk_intro_seen"));
+    const openDelay = introSeen ? 300 : 3750;
+    const timer = window.setTimeout(() => {
+      setShowPoPopup(true);
+    }, openDelay);
+
+    return () => window.clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     if (inspectPattern) {
@@ -310,61 +432,12 @@ export default function Home() {
             <div className="absolute right-0 inset-y-0 w-8 sm:w-24 bg-gradient-to-l from-[#F2EDE4] to-transparent z-10 pointer-events-none" />
 
             <div className="animate-marquee-gallery flex items-center">
-              {/* Track 1 */}
-              <div className="flex items-center gap-5 sm:gap-7 pr-5 sm:pr-7">
-                {[...collections, ...collections].map((item, idx) => (
-                  <div
-                    key={`pattern-track1-${item.slug}-${idx}`}
-                    onClick={() => setInspectPattern(item)}
-                    className="group w-[240px] sm:w-[280px] lg:w-[305px] flex-shrink-0 bg-white rounded-2xl overflow-hidden border border-[#d4c3bb]/60 hover:border-[#D4AF37] shadow-sm hover:shadow-xl transition-all duration-500 cursor-pointer hover:-translate-y-1.5"
-                  >
-                    <div className="relative aspect-square overflow-hidden bg-[#FAF7F2]">
-                      <Image
-                        src={item.flatArtworkImage}
-                        alt={`Artwork desain ${item.name}`}
-                        fill
-                        sizes="(max-width: 640px) 240px, 310px"
-                        className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-                      />
-                    </div>
-                    <div className="p-3.5 text-center bg-white border-t border-[#f0ede9]">
-                      <h4 className="text-sm font-display font-bold text-[#1c1c19] group-hover:text-[#9a4152] transition-colors">{item.name}</h4>
-                      <div className="flex items-center justify-center gap-1.5 mt-1 text-[11px] text-[#8C7D73] font-sans">
-                        <span className="w-2 h-2 rounded-full border border-black/10 inline-block flex-shrink-0" style={{ backgroundColor: item.colorSwatch }} />
-                        <span className="truncate">{item.colorName}</span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Track 2 (Clone) */}
-              <div className="flex items-center gap-5 sm:gap-7 pr-5 sm:pr-7" aria-hidden="true">
-                {[...collections, ...collections].map((item, idx) => (
-                  <div
-                    key={`pattern-track2-${item.slug}-${idx}`}
-                    onClick={() => setInspectPattern(item)}
-                    className="group w-[240px] sm:w-[280px] lg:w-[305px] flex-shrink-0 bg-white rounded-2xl overflow-hidden border border-[#d4c3bb]/60 hover:border-[#D4AF37] shadow-sm hover:shadow-xl transition-all duration-500 cursor-pointer hover:-translate-y-1.5"
-                  >
-                    <div className="relative aspect-square overflow-hidden bg-[#FAF7F2]">
-                      <Image
-                        src={item.flatArtworkImage}
-                        alt={`Artwork desain ${item.name}`}
-                        fill
-                        sizes="(max-width: 640px) 240px, 310px"
-                        className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-                      />
-                    </div>
-                    <div className="p-3.5 text-center bg-white border-t border-[#f0ede9]">
-                      <h4 className="text-sm font-display font-bold text-[#1c1c19] group-hover:text-[#9a4152] transition-colors">{item.name}</h4>
-                      <div className="flex items-center justify-center gap-1.5 mt-1 text-[11px] text-[#8C7D73] font-sans">
-                        <span className="w-2 h-2 rounded-full border border-black/10 inline-block flex-shrink-0" style={{ backgroundColor: item.colorSwatch }} />
-                        <span className="truncate">{item.colorName}</span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <PatternMarqueeTrack trackId="track1" onSelect={setInspectPattern} />
+              <PatternMarqueeTrack
+                trackId="track2"
+                ariaHidden
+                onSelect={setInspectPattern}
+              />
             </div>
           </div>
         </div>
@@ -748,7 +821,7 @@ export default function Home() {
                   {inspectPattern.name}
                 </h3>
                 <span className="text-xs text-[#8C7D73] font-serif italic block mt-0.5">
-                  {inspectPattern.alias} — {inspectPattern.colorName}
+                  {lang === 'en' ? inspectPattern.aliasEn : inspectPattern.alias} — {inspectPattern.colorName}
                 </span>
 
                 <div className="h-px bg-gradient-to-r from-[#D4AF37]/50 via-[#d4c3bb]/60 to-transparent my-3.5" />
@@ -757,7 +830,13 @@ export default function Home() {
                 <div className="space-y-3">
                   <div>
                     <span className="text-[10px] uppercase tracking-[0.2em] font-semibold text-[#8C7D73] block mb-1">
-                      {lang === 'en' ? 'PHILOSOPHY & PATTERN MEANING' : 'FILOSOFI & MAKNA MOTIF'}
+                      {inspectPattern.hasCollectionPage
+                        ? lang === 'en'
+                          ? 'PHILOSOPHY & PATTERN MEANING'
+                          : 'FILOSOFI & MAKNA MOTIF'
+                        : lang === 'en'
+                          ? 'PATTERN CHARACTER'
+                          : 'KARAKTER MOTIF'}
                     </span>
                     <p className="text-xs text-[#311908] leading-relaxed font-sans font-light">
                       {lang === 'en' ? inspectPattern.philosophyStoryEn : inspectPattern.philosophyStory}
@@ -783,16 +862,36 @@ export default function Home() {
                 </div>
 
                 <Link
-                  href={`/collections/${inspectPattern.slug}`}
+                  href={
+                    inspectPattern.hasCollectionPage
+                      ? `/collections/${inspectPattern.slug}`
+                      : `/open-po?motif=${inspectPattern.slug}`
+                  }
                   onClick={() => setInspectPattern(null)}
                   className="w-full py-3.5 px-6 rounded-xl bg-[#311908] hover:bg-[#4A2E1B] !text-white text-xs uppercase tracking-[0.18em] font-semibold text-center shadow-md hover:shadow-lg transition-all flex items-center justify-center cursor-pointer"
                 >
-                  <span className="!text-white">{lang === 'en' ? 'View Full Collection & Buy' : 'Lihat Koleksi Lengkap & Beli'}</span>
+                  <span className="!text-white">
+                    {inspectPattern.hasCollectionPage
+                      ? lang === 'en'
+                        ? 'View Full Collection & Buy'
+                        : 'Lihat Koleksi Lengkap & Beli'
+                      : lang === 'en'
+                        ? 'Order This Motif in Open PO'
+                        : 'Pesan Motif Ini di Open PO'}
+                  </span>
                 </Link>
               </div>
             </div>
           </div>
         </div>
+      )}
+
+      {showPoPopup && (
+        <OpenPoClosingModal
+          isEn={lang === "en"}
+          ctaHref="/open-po"
+          onClose={() => setShowPoPopup(false)}
+        />
       )}
     </div>
   );

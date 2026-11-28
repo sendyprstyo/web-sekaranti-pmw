@@ -6,7 +6,7 @@ import { OPEN_PO_BATCH_LABEL } from "../../lib/open-po";
 export const metadata: Metadata = {
   title: { absolute: `${OPEN_PO_BATCH_LABEL} | SEKARANTI` },
   description:
-    "Form pemesanan resmi OPEN PO BATCH 1 SEKARANTI-SMG. Pilih motif hijab Voal Ultrasoft favoritmu, atur COD Kampus Polines atau area Semarang, dan konfirmasi langsung ke admin.",
+    "Form pemesanan resmi OPEN PO BATCH 1 SEKARANTI-SMG. Pilih dari 10 motif hijab Voal Ultrasoft favoritmu, atur COD Kampus Polines atau area Semarang, dan konfirmasi langsung ke admin.",
   alternates: { canonical: "/open-po" },
 };
 

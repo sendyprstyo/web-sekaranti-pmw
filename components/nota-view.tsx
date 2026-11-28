@@ -8,26 +8,16 @@ import {
   ADMIN_QRIS_URL,
   downloadAdminOrderNotaImage,
 } from "../lib/admin-nota";
-import { AdminOrder } from "../lib/admin-types";
+import { AdminOrder, parseOrderLineItems } from "../lib/admin-types";
 import { formatRupiah, OPEN_PO_BATCH_LABEL } from "../lib/open-po";
 
 const ADMIN_WA_NUMBER = "6285727033141";
 
 function getDisplayLineItems(order: AdminOrder) {
-  const items: Array<{ name: string; qty: number }> = [];
-  if (order.qtyPuspaRaras > 0) {
-    items.push({ name: "Puspa Raras", qty: order.qtyPuspaRaras });
-  }
-  if (order.qtySekarWengi > 0) {
-    items.push({ name: "Sekar Wengi", qty: order.qtySekarWengi });
-  }
-  if (order.qtyTamanSariSekar > 0) {
-    items.push({ name: "Taman Sari Sekar", qty: order.qtyTamanSariSekar });
-  }
-  if (order.qtyTirtaSekar > 0) {
-    items.push({ name: "Tirta Sekar", qty: order.qtyTirtaSekar });
-  }
-  return items;
+  return parseOrderLineItems(order).map((item) => ({
+    name: item.name,
+    qty: item.qty,
+  }));
 }
 
 export function NotaActiveView({ order }: { order: AdminOrder }) {

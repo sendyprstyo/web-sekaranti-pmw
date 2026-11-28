@@ -5,8 +5,6 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import {
-  Collection,
-  getCollections,
   PRODUCT_FINISHING,
   PRODUCT_MATERIAL,
   PRODUCT_PRICE,
@@ -14,11 +12,13 @@ import {
   PRODUCT_SIZE,
 } from "../lib/collections";
 import { useLanguage } from "../lib/language-context";
+import OpenPoClosingModal from "./open-po-closing-modal";
 import {
   CustomerAffiliation,
   DELIVERY_METHOD_LABELS,
   DeliveryMethod,
   formatRupiah,
+  getPoCatalogItems,
   normalizeOrderItems,
   normalizePromoCode,
   OPEN_PO_BATCH_LABEL,
@@ -27,11 +27,12 @@ import {
   OpenPoReceipt,
   PAYMENT_METHOD_LABELS,
   PaymentMethod,
+  PoCatalogItem,
   validateOpenPoInput,
 } from "../lib/open-po";
 
 const INITIAL_QUANTITIES: Record<string, number> = Object.fromEntries(
-  getCollections().map((item) => [item.slug, 0]),
+  getPoCatalogItems().map((item) => [item.slug, 0]),
 );
 
 function buildInitialQuantities(
@@ -73,7 +74,7 @@ function SectionHeader({
 }
 
 function MotifCard({
-  collection,
+  item,
   qty,
   unitPrice,
   promoActive,
@@ -81,13 +82,13 @@ function MotifCard({
   onChangeQty,
   onPreviewPattern,
 }: {
-  collection: Collection;
+  item: PoCatalogItem;
   qty: number;
   unitPrice: number;
   promoActive: boolean;
   isEn: boolean;
   onChangeQty: (slug: string, delta: number) => void;
-  onPreviewPattern: (collection: Collection) => void;
+  onPreviewPattern: (item: PoCatalogItem) => void;
 }) {
   const isSelected = qty > 0;
 
@@ -102,20 +103,20 @@ function MotifCard({
       <div className="flex gap-3.5 items-start">
         <button
           type="button"
-          onClick={() => onPreviewPattern(collection)}
+          onClick={() => onPreviewPattern(item)}
           className="relative w-20 h-24 sm:w-22 sm:h-28 rounded-xl overflow-hidden bg-[#eee5de] flex-shrink-0 group cursor-pointer border border-[#d4c3bb]/50"
           aria-label={
-            isEn
-              ? `Preview motif ${collection.name}`
-              : `Lihat motif ${collection.name}`
+            isEn ? `Preview motif ${item.name}` : `Lihat motif ${item.name}`
           }
         >
           <Image
-            src={collection.modelImage}
-            alt={collection.name}
+            src={item.thumbnailImage}
+            alt={item.name}
             fill
             sizes="96px"
-            className="object-cover object-[center_25%] group-hover:scale-105 transition-transform duration-300"
+            className={`object-cover ${
+              item.hasCollectionPage ? "object-[center_25%]" : "object-center"
+            } group-hover:scale-105 transition-transform duration-300`}
           />
           <span className="absolute inset-x-0 bottom-0 py-0.5 bg-[#1F1D1A]/75 text-white text-[9px] font-sans uppercase tracking-wider text-center opacity-90 group-hover:opacity-100">
             {isEn ? "Motif" : "Detail"}
@@ -126,15 +127,15 @@ function MotifCard({
           <div className="flex items-center gap-2">
             <span
               className="w-3 h-3 rounded-full border border-black/15 flex-shrink-0"
-              style={{ backgroundColor: collection.colorSwatch }}
+              style={{ backgroundColor: item.colorSwatch }}
             />
             <span className="text-[10px] uppercase tracking-[0.16em] text-[#8C7D73] font-semibold truncate">
-              {collection.colorName}
+              {item.colorName}
             </span>
           </div>
 
           <h3 className="font-display text-base sm:text-lg text-[#1c1c19] font-normal mt-1 leading-tight">
-            {collection.name}
+            {item.name}
           </h3>
 
           <div className="flex items-baseline gap-2 mt-1 flex-wrap">
@@ -154,7 +155,7 @@ function MotifCard({
 
           <button
             type="button"
-            onClick={() => onPreviewPattern(collection)}
+            onClick={() => onPreviewPattern(item)}
             className="mt-1.5 text-[11px] font-sans !text-[#50443e] hover:!text-[#311908] underline underline-offset-4 cursor-pointer"
           >
             {isEn ? "View artwork & spec" : "Intip motif & detail"}
@@ -177,12 +178,10 @@ function MotifCard({
         <div className="inline-flex items-center rounded-full border border-[#d4c3bb] bg-[#FAF7F2] p-0.5">
           <button
             type="button"
-            onClick={() => onChangeQty(collection.slug, -1)}
+            onClick={() => onChangeQty(item.slug, -1)}
             disabled={qty === 0}
             aria-label={
-              isEn
-                ? `Decrease ${collection.name}`
-                : `Kurangi jumlah ${collection.name}`
+              isEn ? `Decrease ${item.name}` : `Kurangi jumlah ${item.name}`
             }
             className="w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold !text-[#311908] hover:bg-white disabled:opacity-35 disabled:cursor-not-allowed transition-colors cursor-pointer"
           >
@@ -196,11 +195,9 @@ function MotifCard({
           </span>
           <button
             type="button"
-            onClick={() => onChangeQty(collection.slug, 1)}
+            onClick={() => onChangeQty(item.slug, 1)}
             aria-label={
-              isEn
-                ? `Increase ${collection.name}`
-                : `Tambah jumlah ${collection.name}`
+              isEn ? `Increase ${item.name}` : `Tambah jumlah ${item.name}`
             }
             className="w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold bg-[#311908] !text-white hover:bg-[#4A2E1B] transition-colors cursor-pointer"
           >
@@ -415,7 +412,7 @@ function OrderReceiptCard({
 export default function OpenPoForm() {
   const { lang } = useLanguage();
   const isEn = lang === "en";
-  const collections = useMemo(() => getCollections(), []);
+  const catalogItems = useMemo(() => getPoCatalogItems(), []);
   const searchParams = useSearchParams();
 
   const [quantities, setQuantities] = useState<Record<string, number>>(() =>
@@ -443,18 +440,19 @@ export default function OpenPoForm() {
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [receipt, setReceipt] = useState<OpenPoReceipt | null>(null);
-  const [previewCollection, setPreviewCollection] = useState<Collection | null>(
+  const [previewItem, setPreviewItem] = useState<PoCatalogItem | null>(
     null,
   );
+  const [showBatchModal, setShowBatchModal] = useState(false);
 
   useEffect(() => {
-    if (!previewCollection) return;
+    if (!previewItem) return;
     const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setPreviewCollection(null);
+      if (e.key === "Escape") setPreviewItem(null);
     };
     window.addEventListener("keydown", handleEsc);
     return () => window.removeEventListener("keydown", handleEsc);
-  }, [previewCollection]);
+  }, [previewItem]);
 
   const {
     items,
@@ -669,6 +667,15 @@ export default function OpenPoForm() {
                   : `${PRODUCT_PRICE_LABEL} / pcs`}{" "}
                 · COD Polines Gratis Ongkir
               </span>
+              <button
+                type="button"
+                onClick={() => setShowBatchModal(true)}
+                className="px-3 py-1 rounded-full bg-[#D4AF37]/20 hover:bg-[#D4AF37]/30 border border-[#D4AF37]/50 !text-[#ffe088] font-semibold transition-colors cursor-pointer"
+              >
+                <span className="!text-[#ffe088]">
+                  ⏳ {isEn ? "Closes Dec 1, 2026" : "Ditutup 1 Desember 2026"}
+                </span>
+              </button>
             </div>
           </div>
         </div>
@@ -691,7 +698,10 @@ export default function OpenPoForm() {
             {/* Left Form Sections */}
             <div className="lg:col-span-8 space-y-6">
               {/* STEP 01: Pilih Motif */}
-              <div className="bg-white rounded-3xl p-5 sm:p-7 border border-[#d4c3bb]/60 shadow-sm space-y-5">
+              <div
+                id="step-pilih-motif"
+                className="scroll-mt-28 bg-white rounded-3xl p-5 sm:p-7 border border-[#d4c3bb]/60 shadow-sm space-y-5"
+              >
                 <SectionHeader
                   step="01"
                   title={
@@ -699,22 +709,22 @@ export default function OpenPoForm() {
                   }
                   subtitle={
                     isEn
-                      ? "You can combine more than one motif in a single pre-order."
-                      : "Bisa pesan lebih dari 1 motif sekaligus dalam satu form."
+                      ? "10 exclusive motifs available — combine more than one motif in a single pre-order."
+                      : "Tersedia 10 pilihan motif eksklusif — bisa pesan lebih dari 1 motif sekaligus."
                   }
                 />
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {collections.map((collection) => (
+                  {catalogItems.map((item) => (
                     <MotifCard
-                      key={collection.slug}
-                      collection={collection}
-                      qty={quantities[collection.slug] ?? 0}
+                      key={item.slug}
+                      item={item}
+                      qty={quantities[item.slug] ?? 0}
                       unitPrice={unitPrice}
                       promoActive={promoActive}
                       isEn={isEn}
                       onChangeQty={handleQtyChange}
-                      onPreviewPattern={setPreviewCollection}
+                      onPreviewPattern={setPreviewItem}
                     />
                   ))}
                 </div>
@@ -1220,29 +1230,29 @@ export default function OpenPoForm() {
       </section>
 
       {/* Pattern Detail Preview Modal */}
-      {previewCollection && (
+      {previewItem && (
         <div
           role="dialog"
           aria-modal="true"
-          aria-label={previewCollection.name}
-          onClick={() => setPreviewCollection(null)}
+          aria-label={previewItem.name}
+          onClick={() => setPreviewItem(null)}
           className="fixed inset-0 z-50 bg-[#1F1D1A]/80 backdrop-blur-sm flex items-center justify-center p-4"
         >
           <div
             onClick={(e) => e.stopPropagation()}
             className="bg-[#FAF7F2] rounded-3xl max-w-xl w-full overflow-hidden border border-[#D4AF37]/40 shadow-2xl"
           >
-            <div className="relative aspect-[16/10] bg-[#eee5de]">
+            <div className="relative h-72 sm:h-80 bg-[#f3ede6]">
               <Image
-                src={previewCollection.flatArtworkImage}
-                alt={`Motif ${previewCollection.name}`}
+                src={previewItem.flatArtworkImage}
+                alt={`Motif ${previewItem.name}`}
                 fill
                 sizes="(max-width: 768px) 95vw, 560px"
-                className="object-cover"
+                className="object-contain p-3"
               />
               <button
                 type="button"
-                onClick={() => setPreviewCollection(null)}
+                onClick={() => setPreviewItem(null)}
                 aria-label={isEn ? "Close" : "Tutup"}
                 className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/90 hover:bg-white !text-[#311908] flex items-center justify-center shadow-sm cursor-pointer"
               >
@@ -1253,10 +1263,10 @@ export default function OpenPoForm() {
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <span className="text-[10px] uppercase tracking-[0.2em] text-[#8C7D73] font-semibold">
-                    {previewCollection.colorName}
+                    {previewItem.colorName}
                   </span>
                   <h3 className="font-display text-2xl text-[#1c1c19] font-normal">
-                    {previewCollection.name}
+                    {previewItem.name}
                   </h3>
                 </div>
                 <span className="text-base font-semibold text-[#6B1D2F]">
@@ -1265,22 +1275,28 @@ export default function OpenPoForm() {
               </div>
               <p className="text-xs sm:text-sm text-[#50443e] leading-relaxed">
                 {isEn
-                  ? previewCollection.visualDescriptionEn ||
-                    previewCollection.visualDescription
-                  : previewCollection.visualDescription}
+                  ? previewItem.visualDescriptionEn ||
+                    previewItem.visualDescription
+                  : previewItem.visualDescription}
               </p>
-              <div className="flex items-center justify-between pt-3 border-t border-[#d4c3bb]/50">
-                <Link
-                  href={`/collections/${previewCollection.slug}`}
-                  className="text-xs uppercase tracking-[0.16em] font-semibold text-[#311908] underline underline-offset-4"
-                >
-                  {isEn ? "Open full collection page" : "Lihat halaman koleksi"}
-                </Link>
+              <div className="flex items-center justify-between gap-3 pt-3 border-t border-[#d4c3bb]/50">
+                {previewItem.hasCollectionPage ? (
+                  <Link
+                    href={`/collections/${previewItem.slug}`}
+                    className="text-xs uppercase tracking-[0.16em] font-semibold text-[#311908] underline underline-offset-4"
+                  >
+                    {isEn ? "Open full collection page" : "Lihat halaman koleksi"}
+                  </Link>
+                ) : (
+                  <span className="text-[11px] uppercase tracking-[0.14em] text-[#8C7D73] font-semibold">
+                    {PRODUCT_MATERIAL} · {PRODUCT_SIZE}
+                  </span>
+                )}
                 <button
                   type="button"
                   onClick={() => {
-                    handleQtyChange(previewCollection.slug, 1);
-                    setPreviewCollection(null);
+                    handleQtyChange(previewItem.slug, 1);
+                    setPreviewItem(null);
                   }}
                   className="px-4 py-2.5 rounded-xl bg-[#311908] hover:bg-[#4A2E1B] !text-white text-xs uppercase tracking-[0.16em] font-semibold cursor-pointer"
                 >
@@ -1290,6 +1306,22 @@ export default function OpenPoForm() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Batch 1 Closing Pop-up Announcement */}
+      {showBatchModal && !receipt && (
+        <OpenPoClosingModal
+          isEn={isEn}
+          onClose={() => setShowBatchModal(false)}
+          onAction={() => {
+            setShowBatchModal(false);
+            window.setTimeout(() => {
+              document
+                .getElementById("step-pilih-motif")
+                ?.scrollIntoView({ behavior: "smooth", block: "start" });
+            }, 80);
+          }}
+        />
       )}
     </div>
   );

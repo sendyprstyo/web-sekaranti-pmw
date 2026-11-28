@@ -70,6 +70,12 @@ export async function POST(request: NextRequest) {
     address: data.address,
     paymentMethodLabel: data.paymentMethodLabel,
     status: "Konfirmasi",
+    qtyAmbarwati: data.qtyBySlug["ambarwati"] ?? 0,
+    qtyBumiAsri: data.qtyBySlug["bumi-asri"] ?? 0,
+    qtyKawungsari: data.qtyBySlug["kawungsari"] ?? 0,
+    qtyKembangkinonce: data.qtyBySlug["kembangkinonce"] ?? 0,
+    qtyPuspitasari: data.qtyBySlug["puspitasari"] ?? 0,
+    qtySekarArum: data.qtyBySlug["sekar-arum"] ?? 0,
   };
 
   const appsScriptUrl = process.env.GOOGLE_APPS_SCRIPT_URL?.trim();

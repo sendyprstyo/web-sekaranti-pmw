@@ -1,6 +1,10 @@
 'use client';
 
-import { AdminOrder, buildAdminWhatsappMessage } from "./admin-types";
+import {
+  AdminOrder,
+  buildAdminWhatsappMessage,
+  parseOrderLineItems,
+} from "./admin-types";
 import { formatRupiah } from "./open-po";
 
 export const ADMIN_LOGO_URL = "/assets/logo-sekaranti.jpg";
@@ -36,32 +40,10 @@ async function getNotaImages(): Promise<{
 function getOrderLineItems(
   order: AdminOrder,
 ): Array<{ name: string; qty: number }> {
-  const list: Array<{ name: string; qty: number }> = [];
-  if (order.qtyPuspaRaras > 0) {
-    list.push({
-      name: "Puspa Raras (Voal Ultrasoft 110×110 cm)",
-      qty: order.qtyPuspaRaras,
-    });
-  }
-  if (order.qtySekarWengi > 0) {
-    list.push({
-      name: "Sekar Wengi (Voal Ultrasoft 110×110 cm)",
-      qty: order.qtySekarWengi,
-    });
-  }
-  if (order.qtyTamanSariSekar > 0) {
-    list.push({
-      name: "Taman Sari Sekar (Voal Ultrasoft 110×110 cm)",
-      qty: order.qtyTamanSariSekar,
-    });
-  }
-  if (order.qtyTirtaSekar > 0) {
-    list.push({
-      name: "Tirta Sekar (Voal Ultrasoft 110×110 cm)",
-      qty: order.qtyTirtaSekar,
-    });
-  }
-  return list;
+  return parseOrderLineItems(order).map((item) => ({
+    name: `${item.name} (Voal Ultrasoft 110×110 cm)`,
+    qty: item.qty,
+  }));
 }
 
 function drawRoundedRect(

@@ -78,6 +78,15 @@ function formatCellString_(val) {
   return String(val).replace(/^'/, "");
 }
 
+const EXTRA_MOTIF_HEADERS = [
+  "Qty Ambarwati",
+  "Qty Bumi Asri",
+  "Qty Kawungsari",
+  "Qty Kembangkinonce",
+  "Qty Puspitasari",
+  "Qty Sekar Arum",
+];
+
 function getOrCreateOrdersSheet_(ss) {
   let sheet = ss.getSheetByName(SHEET_ORDERS);
   if (!sheet) {
@@ -109,7 +118,7 @@ function getOrCreateOrdersSheet_(ss) {
       "Alamat Lengkap",
       "Metode Pembayaran",
       "Status",
-    ];
+    ].concat(EXTRA_MOTIF_HEADERS);
 
     sheet.appendRow(headers);
     sheet
@@ -118,16 +127,65 @@ function getOrCreateOrdersSheet_(ss) {
       .setFontColor("#FFFFFF")
       .setFontWeight("bold");
     sheet.setFrozenRows(1);
+  } else {
+    const firstExtraHeader = String(sheet.getRange(1, 24).getValue() || "").trim();
+    if (!firstExtraHeader) {
+      sheet
+        .getRange(1, 24, 1, EXTRA_MOTIF_HEADERS.length)
+        .setValues([EXTRA_MOTIF_HEADERS])
+        .setBackground("#311908")
+        .setFontColor("#FFFFFF")
+        .setFontWeight("bold");
+    }
   }
 
   return sheet;
 }
 
+function mapOrderRow_(r, rowNumber, status) {
+  return {
+    rowNumber: rowNumber,
+    timestamp: formatCellString_(r[0]),
+    orderCode: formatCellString_(r[1]),
+    batch: formatCellString_(r[2]),
+    fullName: formatCellString_(r[3]),
+    whatsapp: formatCellString_(r[4]),
+    affiliationLabel: formatCellString_(r[5]),
+    departmentOrClass: formatCellString_(r[6]),
+    itemsSummary: formatCellString_(r[7]),
+    qtyPuspaRaras: Number(r[8] || 0),
+    qtySekarWengi: Number(r[9] || 0),
+    qtyTamanSariSekar: Number(r[10] || 0),
+    qtyTirtaSekar: Number(r[11] || 0),
+    qtyAmbarwati: Number(r[23] || 0),
+    qtyBumiAsri: Number(r[24] || 0),
+    qtyKawungsari: Number(r[25] || 0),
+    qtyKembangkinonce: Number(r[26] || 0),
+    qtyPuspitasari: Number(r[27] || 0),
+    qtySekarArum: Number(r[28] || 0),
+    totalQty: Number(r[12] || 0),
+    promoCode: formatCellString_(r[13]) || "-",
+    unitPrice: Number(r[14] || 0),
+    originalTotal: Number(r[15] || 0),
+    discountAmount: Number(r[16] || 0),
+    totalAmount: Number(r[17] || 0),
+    deliveryMethodLabel: formatCellString_(r[18]),
+    codSpot: formatCellString_(r[19]),
+    address: formatCellString_(r[20]),
+    paymentMethodLabel: formatCellString_(r[21]),
+    status: status,
+  };
+}
+
 function ensureSummarySheet_(ss) {
   let summary = ss.getSheetByName(SHEET_SUMMARY);
-  if (summary) return summary;
+  const existed = Boolean(summary);
+  if (!summary) {
+    summary = ss.insertSheet(SHEET_SUMMARY);
+  } else if (String(summary.getRange(7, 1).getValue() || "").trim() === "Ambarwati (pcs)") {
+    return summary;
+  }
 
-  summary = ss.insertSheet(SHEET_SUMMARY);
   const rows = [
     ["REKAP PRODUKSI & ORDER - OPEN PO BATCH 1 SEKARANTI-SMG", ""],
     ["Item Rekap (Aktif / Non-Batal)", "Jumlah"],
@@ -135,6 +193,12 @@ function ensureSummarySheet_(ss) {
     ["Sekar Wengi (pcs)", '=SUMIF(' + SHEET_ORDERS + '!W2:W, "<>Dibatalkan", ' + SHEET_ORDERS + '!J2:J)'],
     ["Taman Sari Sekar (pcs)", '=SUMIF(' + SHEET_ORDERS + '!W2:W, "<>Dibatalkan", ' + SHEET_ORDERS + '!K2:K)'],
     ["Tirta Sekar (pcs)", '=SUMIF(' + SHEET_ORDERS + '!W2:W, "<>Dibatalkan", ' + SHEET_ORDERS + '!L2:L)'],
+    ["Ambarwati (pcs)", '=SUMIF(' + SHEET_ORDERS + '!W2:W, "<>Dibatalkan", ' + SHEET_ORDERS + '!X2:X)'],
+    ["Bumi Asri (pcs)", '=SUMIF(' + SHEET_ORDERS + '!W2:W, "<>Dibatalkan", ' + SHEET_ORDERS + '!Y2:Y)'],
+    ["Kawungsari (pcs)", '=SUMIF(' + SHEET_ORDERS + '!W2:W, "<>Dibatalkan", ' + SHEET_ORDERS + '!Z2:Z)'],
+    ["Kembangkinonce (pcs)", '=SUMIF(' + SHEET_ORDERS + '!W2:W, "<>Dibatalkan", ' + SHEET_ORDERS + '!AA2:AA)'],
+    ["Puspitasari (pcs)", '=SUMIF(' + SHEET_ORDERS + '!W2:W, "<>Dibatalkan", ' + SHEET_ORDERS + '!AB2:AB)'],
+    ["Sekar Arum (pcs)", '=SUMIF(' + SHEET_ORDERS + '!W2:W, "<>Dibatalkan", ' + SHEET_ORDERS + '!AC2:AC)'],
     ["Total Semua Hijab Aktif (pcs)", '=SUMIF(' + SHEET_ORDERS + '!W2:W, "<>Dibatalkan", ' + SHEET_ORDERS + '!M2:M)'],
     ["Total Order Pakai Kode BERSAMASEKARANTI", '=COUNTIFS(' + SHEET_ORDERS + '!N2:N, "BERSAMASEKARANTI", ' + SHEET_ORDERS + '!W2:W, "<>Dibatalkan")'],
     ["Total Order COD Kampus Polines", '=COUNTIFS(' + SHEET_ORDERS + '!S2:S, "COD Kampus Polines (Tembalang)", ' + SHEET_ORDERS + '!W2:W, "<>Dibatalkan")'],
@@ -144,7 +208,10 @@ function ensureSummarySheet_(ss) {
   summary.getRange(1, 1, rows.length, 2).setValues(rows);
   summary.getRange("A1:B1").merge().setBackground("#311908").setFontColor("#FFE088").setFontWeight("bold");
   summary.getRange("A2:B2").setBackground("#6B1D2F").setFontColor("#FFFFFF").setFontWeight("bold");
-  summary.getRange("B10").setNumberFormat('"Rp"#,##0');
+  if (existed) {
+    summary.getRange("B3:B15").setNumberFormat("#,##0");
+  }
+  summary.getRange("B16").setNumberFormat('"Rp"#,##0');
   summary.autoResizeColumns(1, 2);
   return summary;
 }
@@ -242,6 +309,12 @@ function createOrderFromWeb_(data) {
       data.address || "",
       data.paymentMethodLabel || "",
       initialStatus,
+      Number(data.qtyAmbarwati || 0),
+      Number(data.qtyBumiAsri || 0),
+      Number(data.qtyKawungsari || 0),
+      Number(data.qtyKembangkinonce || 0),
+      Number(data.qtyPuspitasari || 0),
+      Number(data.qtySekarArum || 0),
     ]);
 
     const lastRow = sheet.getLastRow();
@@ -407,38 +480,12 @@ function getDashboardData(token) {
   };
 
   if (ordersLastRow > 1) {
-    const values = ordersSheet.getRange(2, 1, ordersLastRow - 1, 23).getValues();
+    const values = ordersSheet.getRange(2, 1, ordersLastRow - 1, 29).getValues();
     for (let i = values.length - 1; i >= 0; i--) {
       const r = values[i];
       const status = normalizeOrderStatus_(formatCellString_(r[22]));
       const isCancelled = status === "Dibatalkan";
-
-      const order = {
-        rowNumber: i + 2,
-        timestamp: formatCellString_(r[0]),
-        orderCode: formatCellString_(r[1]),
-        batch: formatCellString_(r[2]),
-        fullName: formatCellString_(r[3]),
-        whatsapp: formatCellString_(r[4]),
-        affiliationLabel: formatCellString_(r[5]),
-        departmentOrClass: formatCellString_(r[6]),
-        itemsSummary: formatCellString_(r[7]),
-        qtyPuspaRaras: Number(r[8] || 0),
-        qtySekarWengi: Number(r[9] || 0),
-        qtyTamanSariSekar: Number(r[10] || 0),
-        qtyTirtaSekar: Number(r[11] || 0),
-        totalQty: Number(r[12] || 0),
-        promoCode: formatCellString_(r[13]) || "-",
-        unitPrice: Number(r[14] || 0),
-        originalTotal: Number(r[15] || 0),
-        discountAmount: Number(r[16] || 0),
-        totalAmount: Number(r[17] || 0),
-        deliveryMethodLabel: formatCellString_(r[18]),
-        codSpot: formatCellString_(r[19]),
-        address: formatCellString_(r[20]),
-        paymentMethodLabel: formatCellString_(r[21]),
-        status: status,
-      };
+      const order = mapOrderRow_(r, i + 2, status);
 
       orders.push(order);
 
@@ -674,7 +721,7 @@ function getOrderForNota(orderCode) {
     return { ok: false, notFound: true, message: "Pesanan tidak ditemukan." };
   }
 
-  const values = ordersSheet.getRange(2, 1, lastRow - 1, 23).getValues();
+  const values = ordersSheet.getRange(2, 1, lastRow - 1, 29).getValues();
   for (let i = values.length - 1; i >= 0; i--) {
     const r = values[i];
     if (formatCellString_(r[1]) === cleanCode) {
@@ -691,32 +738,7 @@ function getOrderForNota(orderCode) {
       return {
         ok: true,
         locked: false,
-        order: {
-          rowNumber: i + 2,
-          timestamp: formatCellString_(r[0]),
-          orderCode: cleanCode,
-          batch: formatCellString_(r[2]),
-          fullName: formatCellString_(r[3]),
-          whatsapp: formatCellString_(r[4]),
-          affiliationLabel: formatCellString_(r[5]),
-          departmentOrClass: formatCellString_(r[6]),
-          itemsSummary: formatCellString_(r[7]),
-          qtyPuspaRaras: Number(r[8] || 0),
-          qtySekarWengi: Number(r[9] || 0),
-          qtyTamanSariSekar: Number(r[10] || 0),
-          qtyTirtaSekar: Number(r[11] || 0),
-          totalQty: Number(r[12] || 0),
-          promoCode: formatCellString_(r[13]) || "-",
-          unitPrice: Number(r[14] || 0),
-          originalTotal: Number(r[15] || 0),
-          discountAmount: Number(r[16] || 0),
-          totalAmount: Number(r[17] || 0),
-          deliveryMethodLabel: formatCellString_(r[18]),
-          codSpot: formatCellString_(r[19]),
-          address: formatCellString_(r[20]),
-          paymentMethodLabel: formatCellString_(r[21]),
-          status: status,
-        },
+        order: mapOrderRow_(r, i + 2, status),
       };
     }
   }

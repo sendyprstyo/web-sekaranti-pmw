@@ -2,8 +2,39 @@ import { getCollections, PRODUCT_PRICE } from "./collections";
 
 export const OPEN_PO_BATCH_LABEL = "OPEN PO BATCH 1 SEKARANTI-SMG";
 
+export const OPEN_PO_CLOSING_AT_ISO = "2026-12-01T23:59:59+07:00";
+export const OPEN_PO_CLOSING_DATE_LABEL_ID = "Selasa, 1 Desember 2026";
+export const OPEN_PO_CLOSING_DATE_LABEL_EN = "Tuesday, December 1, 2026";
+
 export const OPEN_PO_PROMO_CODE = "BERSAMASEKARANTI";
 export const OPEN_PO_PROMO_UNIT_PRICE = 50_000;
+
+export interface OpenPoCountdown {
+  expired: boolean;
+  days: number;
+  hours: number;
+  minutes: number;
+  seconds: number;
+}
+
+/**
+ * Computes remaining time until Batch 1 closes (1 December 2026, 23:59 WIB).
+ */
+export function getOpenPoCountdown(nowMs = Date.now()): OpenPoCountdown {
+  const deadlineMs = new Date(OPEN_PO_CLOSING_AT_ISO).getTime();
+  const diff = deadlineMs - nowMs;
+  if (!Number.isFinite(diff) || diff <= 0) {
+    return { expired: true, days: 0, hours: 0, minutes: 0, seconds: 0 };
+  }
+  const totalSeconds = Math.floor(diff / 1000);
+  return {
+    expired: false,
+    days: Math.floor(totalSeconds / 86_400),
+    hours: Math.floor((totalSeconds % 86_400) / 3_600),
+    minutes: Math.floor((totalSeconds % 3_600) / 60),
+    seconds: totalSeconds % 60,
+  };
+}
 
 export type CustomerAffiliation = "polines" | "general";
 
@@ -149,6 +180,121 @@ export function normalizePromoCode(raw: unknown): {
   };
 }
 
+export interface PoCatalogItem {
+  slug: string;
+  name: string;
+  colorName: string;
+  colorSwatch: string;
+  thumbnailImage: string;
+  flatArtworkImage: string;
+  visualDescription: string;
+  visualDescriptionEn: string;
+  hasCollectionPage: boolean;
+}
+
+const EXTRA_PO_DESIGN_ITEMS: PoCatalogItem[] = [
+  {
+    slug: "ambarwati",
+    name: "Ambarwati",
+    colorName: "Dusty Plum Rose",
+    colorSwatch: "#A97E8E",
+    thumbnailImage: "/assets/design-hijab-optimized/AMBARWATI.webp",
+    flatArtworkImage: "/assets/design-hijab-optimized/AMBARWATI.webp",
+    visualDescription:
+      "Motif floral cat air bernuansa dusty plum dan mauve dengan sulur ornamen klasik yang anggun, manis, dan lembut untuk tampilan harian maupun acara spesial.",
+    visualDescriptionEn:
+      "Dusty plum and mauve watercolor florals paired with classic ornamental scrolls for a soft, graceful daily or occasion look.",
+    hasCollectionPage: false,
+  },
+  {
+    slug: "bumi-asri",
+    name: "Bumi Asri",
+    colorName: "Warm Coral & Sage",
+    colorSwatch: "#D99B97",
+    thumbnailImage: "/assets/design-hijab-optimized/BUMI ASRI.webp",
+    flatArtworkImage: "/assets/design-hijab-optimized/BUMI ASRI.webp",
+    visualDescription:
+      "Perpaduan bunga botani bernuansa coral hangat, sage, dan dusty blue di atas dasar blush-cream yang segar, ringan, dan feminin.",
+    visualDescriptionEn:
+      "Warm coral, sage, and dusty blue botanical blooms arranged over a fresh, feminine blush-cream base.",
+    hasCollectionPage: false,
+  },
+  {
+    slug: "kawungsari",
+    name: "Kawungsari",
+    colorName: "Ivory & Dusty Rose",
+    colorSwatch: "#C48B94",
+    thumbnailImage: "/assets/design-hijab-optimized/KAWUNGSARI.webp",
+    flatArtworkImage: "/assets/design-hijab-optimized/KAWUNGSARI.webp",
+    visualDescription:
+      "Kelopak bunga dusty rose dengan dedaunan sage-beige yang tenang di atas dasar gading bersih bermotif simetris elegan.",
+    visualDescriptionEn:
+      "Dusty rose floral blooms with muted sage-beige foliage set over a clean ivory symmetrical layout.",
+    hasCollectionPage: false,
+  },
+  {
+    slug: "kembangkinonce",
+    name: "Kembangkinonce",
+    colorName: "Indigo Denim Blue",
+    colorSwatch: "#3E5C8A",
+    thumbnailImage: "/assets/design-hijab-optimized/KEMBANGKINONCE.webp",
+    flatArtworkImage: "/assets/design-hijab-optimized/KEMBANGKINONCE.webp",
+    visualDescription:
+      "Motif floral monokrom biru indigo denim yang tegas namun tetap lembut, memberi kesan klasik berkarakter dan mudah dipadukan.",
+    visualDescriptionEn:
+      "Deep indigo denim-blue monochrome florals and foliage with a crisp, classic, and versatile character.",
+    hasCollectionPage: false,
+  },
+  {
+    slug: "puspitasari",
+    name: "Puspitasari",
+    colorName: "Sage & Pearl Paisley",
+    colorSwatch: "#B9BEB4",
+    thumbnailImage: "/assets/design-hijab-optimized/PUSPITASARI.webp",
+    flatArtworkImage: "/assets/design-hijab-optimized/PUSPITASARI.webp",
+    visualDescription:
+      "Latar floral cat air sage-taupe lembut berpadu detail ornamen paisley warna mutiara gading yang halus dan bersahaja.",
+    visualDescriptionEn:
+      "Soft sage-taupe watercolor floral backdrop layered with delicate ivory-pearl paisley ornaments.",
+    hasCollectionPage: false,
+  },
+  {
+    slug: "sekar-arum",
+    name: "Sekar Arum",
+    colorName: "Dove Grey & Soft Gold",
+    colorSwatch: "#8F9394",
+    thumbnailImage: "/assets/design-hijab-optimized/SEKAR ARUM.webp",
+    flatArtworkImage: "/assets/design-hijab-optimized/SEKAR ARUM.webp",
+    visualDescription:
+      "Motif bunga cat air abu-abu dove yang sejuk dengan aksen daun olive keemasan, menghadirkan nuansa tenang dan modern.",
+    visualDescriptionEn:
+      "Soft dove-grey watercolor florals accented with muted olive-gold leaves for a calm, modern finish.",
+    hasCollectionPage: false,
+  },
+];
+
+/**
+ * Returns all 10 hijab designs available in the Open PO Batch 1 catalog.
+ */
+export function getPoCatalogItems(): PoCatalogItem[] {
+  const storefrontItems: PoCatalogItem[] = getCollections().map(
+    (collection) => ({
+      slug: collection.slug,
+      name: collection.name,
+      colorName: collection.colorName,
+      colorSwatch: collection.colorSwatch,
+      thumbnailImage: collection.modelImage,
+      flatArtworkImage: collection.flatArtworkImage,
+      visualDescription: collection.visualDescription,
+      visualDescriptionEn:
+        collection.visualDescriptionEn || collection.visualDescription,
+      hasCollectionPage: true,
+    }),
+  );
+
+  return [...storefrontItems, ...EXTRA_PO_DESIGN_ITEMS];
+}
+
 /**
  * Normalizes and computes line items and totals using canonical prices and optional promo pricing.
  */
@@ -166,7 +312,7 @@ export function normalizeOrderItems(
   totalAmount: number;
   itemsSummary: string;
 } {
-  const collections = getCollections();
+  const catalogItems = getPoCatalogItems();
   const { isValidMatch } = normalizePromoCode(promoCodeInput);
   const promoCode = isValidMatch ? OPEN_PO_PROMO_CODE : "";
   const activeUnitPrice = isValidMatch ? OPEN_PO_PROMO_UNIT_PRICE : PRODUCT_PRICE;
@@ -174,18 +320,18 @@ export function normalizeOrderItems(
   const qtyBySlug: Record<string, number> = {};
   const items: OpenPoOrderItem[] = [];
 
-  for (const collection of collections) {
-    const rawQty = Number(quantities?.[collection.slug] ?? 0);
+  for (const item of catalogItems) {
+    const rawQty = Number(quantities?.[item.slug] ?? 0);
     const qty = Number.isFinite(rawQty)
       ? Math.max(0, Math.min(99, Math.floor(rawQty)))
       : 0;
 
-    qtyBySlug[collection.slug] = qty;
+    qtyBySlug[item.slug] = qty;
     if (qty > 0) {
       items.push({
-        slug: collection.slug,
-        name: collection.name,
-        colorName: collection.colorName,
+        slug: item.slug,
+        name: item.name,
+        colorName: item.colorName,
         quantity: qty,
         unitPrice: activeUnitPrice,
         subtotal: qty * activeUnitPrice,

@@ -29,6 +29,12 @@ export interface AdminOrder {
   qtySekarWengi: number;
   qtyTamanSariSekar: number;
   qtyTirtaSekar: number;
+  qtyAmbarwati?: number;
+  qtyBumiAsri?: number;
+  qtyKawungsari?: number;
+  qtyKembangkinonce?: number;
+  qtyPuspitasari?: number;
+  qtySekarArum?: number;
   totalQty: number;
   promoCode: string;
   unitPrice: number;
@@ -130,4 +136,90 @@ export function buildAdminCustomerWhatsappUrl(
   return `https://wa.me/${encodeURIComponent(order.whatsapp)}?text=${encodeURIComponent(
     buildAdminWhatsappMessage(order, origin),
   )}`;
+}
+
+export interface ParsedOrderLineItem {
+  name: string;
+  qty: number;
+  subtotal: number;
+}
+
+const ORDERED_MOTIF_FIELDS: Array<{
+  key: keyof AdminOrder;
+  name: string;
+}> = [
+  { key: "qtyPuspaRaras", name: "Puspa Raras" },
+  { key: "qtySekarWengi", name: "Sekar Wengi" },
+  { key: "qtyTamanSariSekar", name: "Taman Sari Sekar" },
+  { key: "qtyTirtaSekar", name: "Tirta Sekar" },
+  { key: "qtyAmbarwati", name: "Ambarwati" },
+  { key: "qtyBumiAsri", name: "Bumi Asri" },
+  { key: "qtyKawungsari", name: "Kawungsari" },
+  { key: "qtyKembangkinonce", name: "Kembangkinonce" },
+  { key: "qtyPuspitasari", name: "Puspitasari" },
+  { key: "qtySekarArum", name: "Sekar Arum" },
+];
+
+/**
+ * Extracts per-motif line items from structured columns and/or itemsSummary so all 10 motifs render consistently.
+ */
+export function parseOrderLineItems(order: AdminOrder): ParsedOrderLineItem[] {
+  const unitPrice = Number(order.unitPrice || 0);
+  const summaryItems: ParsedOrderLineItem[] = [];
+
+  if (order.itemsSummary) {
+    const segments = order.itemsSummary
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+    for (const seg of segments) {
+      const match = seg.match(/^(.+?)\s*\((\d+)\s*pcs\)$/i);
+      if (match) {
+        const name = match[1].trim();
+        const qty = Number(match[2] || 0);
+        if (name && qty > 0) {
+          summaryItems.push({
+            name,
+            qty,
+            subtotal: qty * unitPrice,
+          });
+        }
+      }
+    }
+  }
+
+  const structuredItems: ParsedOrderLineItem[] = [];
+  for (const field of ORDERED_MOTIF_FIELDS) {
+    const qty = Number(order[field.key] ?? 0);
+    if (qty > 0) {
+      structuredItems.push({
+        name: field.name,
+        qty,
+        subtotal: qty * unitPrice,
+      });
+    }
+  }
+
+  const summaryQty = summaryItems.reduce((acc, item) => acc + item.qty, 0);
+  const structuredQty = structuredItems.reduce((acc, item) => acc + item.qty, 0);
+
+  if (summaryItems.length > 0 && (structuredQty === 0 || summaryQty > structuredQty)) {
+    return summaryItems;
+  }
+
+  if (structuredItems.length > 0) {
+    return structuredItems;
+  }
+
+  if (summaryItems.length > 0) {
+    return summaryItems;
+  }
+
+  return [
+    {
+      name: order.itemsSummary || "Hijab Sekaranti",
+      qty: order.totalQty || 1,
+      subtotal: Number(order.totalAmount || 0),
+    },
+  ];
 }
