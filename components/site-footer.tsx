@@ -11,7 +11,7 @@ export default function SiteFooter() {
   const { t } = useLanguage();
   const pathname = usePathname();
 
-  if (pathname?.startsWith("/admin")) {
+  if (pathname?.startsWith("/admin") || pathname?.startsWith("/nota")) {
     return null;
   }
 

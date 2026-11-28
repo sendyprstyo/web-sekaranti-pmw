@@ -11,7 +11,8 @@ export default function IntroScreen() {
   const [phase, setPhase] = useState<Phase>('enter');
   const { lang } = useLanguage();
   const pathname = usePathname();
-  const isAdminRoute = pathname?.startsWith('/admin');
+  const isAdminRoute =
+    pathname?.startsWith('/admin') || pathname?.startsWith('/nota');
 
   useEffect(() => {
     if (isAdminRoute) return;

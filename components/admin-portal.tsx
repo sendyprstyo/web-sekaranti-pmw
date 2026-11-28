@@ -7,9 +7,7 @@ import {
   ADMIN_LOGO_URL,
   ADMIN_QRIS_URL,
   downloadAdminOrderNotaImage,
-  renderOrderNotaBlob,
   shareAdminOrderNotaImage,
-  tryCopyNotaImageToClipboard,
 } from "../lib/admin-nota";
 import {
   ADMIN_ORDER_STATUSES,
@@ -20,6 +18,7 @@ import {
   AdminStats,
   AdminUser,
   buildAdminCustomerWhatsappUrl,
+  resolveOrderNotaUrl,
   STATUS_BADGE_CLASSES,
 } from "../lib/admin-types";
 import { formatRupiah } from "../lib/open-po";
@@ -272,17 +271,19 @@ function AdminOrderDetailModal({
   order,
   busyDelete,
   onClose,
+  onSendNotaLinkWhatsapp,
+  onCopyNotaLink,
   onDownloadImage,
   onShareImage,
-  onSendWhatsapp,
   onDelete,
 }: {
   order: AdminOrder;
   busyDelete: boolean;
   onClose: () => void;
+  onSendNotaLinkWhatsapp: (order: AdminOrder) => void;
+  onCopyNotaLink: (order: AdminOrder) => void;
   onDownloadImage: (order: AdminOrder) => void;
   onShareImage: (order: AdminOrder) => void;
-  onSendWhatsapp: (order: AdminOrder) => void;
   onDelete: (orderCode: string) => void;
 }) {
   return (
@@ -408,26 +409,34 @@ function AdminOrderDetailModal({
         <div className="flex flex-wrap gap-2.5 pt-3 border-t border-[#e2d6ce]">
           <button
             type="button"
-            onClick={() => onDownloadImage(order)}
-            className="flex-1 min-w-[170px] py-3 px-4 rounded-xl bg-[#311908] hover:bg-[#4A2E1B] !text-white text-xs uppercase tracking-[0.08em] font-bold border border-[#D4AF37]/40 cursor-pointer"
+            onClick={() => onSendNotaLinkWhatsapp(order)}
+            className="flex-1 min-w-[200px] py-3 px-4 rounded-xl bg-[#25D366] hover:bg-[#1ebe5d] !text-white text-xs uppercase tracking-[0.08em] font-bold cursor-pointer shadow-xs"
           >
-            <span className="text-white">⬇ Download Nota Gambar</span>
+            <span className="text-white">📲 Kirim Link Nota ke WA</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => onCopyNotaLink(order)}
+            className="py-3 px-4 rounded-xl border border-[#d4c3bb] bg-[#FAF7F2] hover:bg-[#f3ede4] !text-[#311908] text-xs font-bold cursor-pointer"
+          >
+            🔗 Salin Link Nota
+          </button>
+
+          <button
+            type="button"
+            onClick={() => onDownloadImage(order)}
+            className="py-3 px-4 rounded-xl bg-[#311908] hover:bg-[#4A2E1B] !text-white text-xs font-bold border border-[#D4AF37]/40 cursor-pointer"
+          >
+            <span className="text-white">⬇ Nota Gambar</span>
           </button>
 
           <button
             type="button"
             onClick={() => onShareImage(order)}
-            className="flex-1 min-w-[170px] py-3 px-4 rounded-xl bg-[#6B1D2F] hover:bg-[#531423] !text-white text-xs uppercase tracking-[0.08em] font-bold cursor-pointer"
+            className="py-3 px-4 rounded-xl bg-[#6B1D2F] hover:bg-[#531423] !text-white text-xs font-bold cursor-pointer"
           >
-            <span className="text-white">📤 Bagikan Gambar (HP)</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => onSendWhatsapp(order)}
-            className="flex-1 min-w-[180px] py-3 px-4 rounded-xl bg-[#25D366] hover:bg-[#1ebe5d] !text-white text-xs uppercase tracking-[0.08em] font-bold cursor-pointer"
-          >
-            <span className="text-white">📲 Buka Chat WA Pembeli</span>
+            <span className="text-white">📤 Share Gambar</span>
           </button>
 
           <button
@@ -856,25 +865,31 @@ export default function AdminPortal() {
     }
   };
 
-  const handleSendWhatsappWithImage = async (order: AdminOrder) => {
-    let copied = false;
-    try {
-      const blob = await renderOrderNotaBlob(order);
-      copied = await tryCopyNotaImageToClipboard(blob);
-      await downloadAdminOrderNotaImage(order, blob);
-    } catch {
-      // Tetap buka WA meski render gagal
-    }
+  const handleSendNotaLinkWhatsapp = (order: AdminOrder) => {
+    const origin =
+      typeof window !== "undefined" ? window.location.origin : undefined;
     window.open(
-      buildAdminCustomerWhatsappUrl(order),
+      buildAdminCustomerWhatsappUrl(order, origin),
       "_blank",
       "noopener,noreferrer",
     );
-    showToast(
-      copied
-        ? "Chat WA dibuka & gambar disalin ke clipboard (Ctrl+V di WA Web / lampirkan dari Galeri)."
-        : "Nota gambar terdownload & chat WA pembeli dibuka — tinggal lampirkan gambarnya!",
-    );
+    showToast("Chat WA pembeli dibuka dengan Link Nota & QRIS otomatis!");
+  };
+
+  const handleCopyNotaLink = async (order: AdminOrder) => {
+    const origin =
+      typeof window !== "undefined" ? window.location.origin : undefined;
+    const url = resolveOrderNotaUrl(order, origin);
+    if (!url) {
+      showToast("Link nota belum tersedia. Klik Refresh terlebih dahulu.");
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+      showToast("Link Nota disalin! (Otomatis nonaktif saat status Selesai)");
+    } catch {
+      showToast("Gagal menyalin link nota.");
+    }
   };
 
   if (!authChecked) {
@@ -1123,12 +1138,17 @@ export default function AdminPortal() {
                             </button>
 
                             <a
-                              href={buildAdminCustomerWhatsappUrl(o)}
+                              href={buildAdminCustomerWhatsappUrl(
+                                o,
+                                typeof window !== "undefined"
+                                  ? window.location.origin
+                                  : undefined,
+                              )}
                               target="_blank"
                               rel="noreferrer"
                               className="px-2.5 py-1.5 rounded-lg bg-[#25D366] hover:bg-[#1ebe5d] !text-white text-[11.5px] font-semibold"
                             >
-                              <span className="text-white">Chat WA</span>
+                              <span className="text-white">Kirim Link WA</span>
                             </a>
 
                             <button
@@ -1155,9 +1175,10 @@ export default function AdminPortal() {
           order={detailOrder}
           busyDelete={busyDelete}
           onClose={() => setDetailOrder(null)}
+          onSendNotaLinkWhatsapp={handleSendNotaLinkWhatsapp}
+          onCopyNotaLink={handleCopyNotaLink}
           onDownloadImage={handleDownloadImage}
           onShareImage={handleShareImage}
-          onSendWhatsapp={handleSendWhatsappWithImage}
           onDelete={handleDeleteOrder}
         />
       )}

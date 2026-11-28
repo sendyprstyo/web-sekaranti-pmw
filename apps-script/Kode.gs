@@ -290,6 +290,9 @@ function doPost(e) {
     if (action === "adminChangePassword") {
       return jsonResponse_(changeOwnPassword(data.token, data));
     }
+    if (action === "getOrderForNota") {
+      return jsonResponse_(getOrderForNota(data.orderCode));
+    }
 
     return jsonResponse_(createOrderFromWeb_(data));
   } catch (err) {
@@ -652,4 +655,71 @@ function changeOwnPassword(token, payload) {
   } finally {
     lock.releaseLock();
   }
+}
+
+/**
+ * Mengambil data 1 pesanan berdasarkan Kode PO untuk halaman Nota Online.
+ * Jika status sudah Selesai atau Dibatalkan, data order & PII dikunci (tidak dikirim).
+ */
+function getOrderForNota(orderCode) {
+  const cleanCode = String(orderCode || "").trim();
+  if (!cleanCode) {
+    return { ok: false, notFound: true, message: "Kode PO tidak valid." };
+  }
+
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const ordersSheet = getOrCreateOrdersSheet_(ss);
+  const lastRow = ordersSheet.getLastRow();
+  if (lastRow <= 1) {
+    return { ok: false, notFound: true, message: "Pesanan tidak ditemukan." };
+  }
+
+  const values = ordersSheet.getRange(2, 1, lastRow - 1, 23).getValues();
+  for (let i = values.length - 1; i >= 0; i--) {
+    const r = values[i];
+    if (formatCellString_(r[1]) === cleanCode) {
+      const status = normalizeOrderStatus_(formatCellString_(r[22]));
+      if (status === "Selesai" || status === "Dibatalkan") {
+        return {
+          ok: true,
+          locked: true,
+          status: status,
+          orderCode: cleanCode,
+        };
+      }
+
+      return {
+        ok: true,
+        locked: false,
+        order: {
+          rowNumber: i + 2,
+          timestamp: formatCellString_(r[0]),
+          orderCode: cleanCode,
+          batch: formatCellString_(r[2]),
+          fullName: formatCellString_(r[3]),
+          whatsapp: formatCellString_(r[4]),
+          affiliationLabel: formatCellString_(r[5]),
+          departmentOrClass: formatCellString_(r[6]),
+          itemsSummary: formatCellString_(r[7]),
+          qtyPuspaRaras: Number(r[8] || 0),
+          qtySekarWengi: Number(r[9] || 0),
+          qtyTamanSariSekar: Number(r[10] || 0),
+          qtyTirtaSekar: Number(r[11] || 0),
+          totalQty: Number(r[12] || 0),
+          promoCode: formatCellString_(r[13]) || "-",
+          unitPrice: Number(r[14] || 0),
+          originalTotal: Number(r[15] || 0),
+          discountAmount: Number(r[16] || 0),
+          totalAmount: Number(r[17] || 0),
+          deliveryMethodLabel: formatCellString_(r[18]),
+          codSpot: formatCellString_(r[19]),
+          address: formatCellString_(r[20]),
+          paymentMethodLabel: formatCellString_(r[21]),
+          status: status,
+        },
+      };
+    }
+  }
+
+  return { ok: false, notFound: true, message: "Nota tidak ditemukan." };
 }

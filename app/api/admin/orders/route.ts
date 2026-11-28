@@ -1,12 +1,49 @@
 import { NextRequest, NextResponse } from "next/server";
-import { executeAuthorizedAdminAction } from "../../../../lib/admin-api";
+import { cookies } from "next/headers";
+import {
+  ADMIN_COOKIE_NAME,
+  callAppsScript,
+  clearAdminSessionCookie,
+  executeAuthorizedAdminAction,
+} from "../../../../lib/admin-api";
 import { ADMIN_ORDER_STATUSES } from "../../../../lib/admin-types";
+import { buildSignedNotaPath } from "../../../../lib/nota-token";
 
 /**
- * Fetches dashboard stats, orders, and owner records for the authenticated admin.
+ * Fetches dashboard stats, orders (with signed online Nota paths), and owner records for the authenticated admin.
  */
 export async function GET() {
-  return executeAuthorizedAdminAction("adminDashboard");
+  const cookieStore = await cookies();
+  const token = cookieStore.get(ADMIN_COOKIE_NAME)?.value;
+
+  if (!token) {
+    return NextResponse.json(
+      { ok: false, unauthorized: true, message: "Silakan masuk terlebih dahulu." },
+      { status: 401 },
+    );
+  }
+
+  const { status, data } = await callAppsScript({
+    action: "adminDashboard",
+    token,
+  });
+
+  if (status === 200 && data.ok && Array.isArray(data.orders)) {
+    data.orders = data.orders.map((order) => {
+      const rec = order as Record<string, unknown>;
+      const code = String(rec.orderCode ?? "");
+      return {
+        ...rec,
+        ...(code ? { notaPath: buildSignedNotaPath(code) } : {}),
+      };
+    });
+  }
+
+  const response = NextResponse.json(data, { status });
+  if (status === 401 || data.unauthorized) {
+    clearAdminSessionCookie(response);
+  }
+  return response;
 }
 
 /**

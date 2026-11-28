@@ -95,7 +95,7 @@ export default function FloatingNavbar() {
     }
   };
 
-  if (pathname?.startsWith("/admin")) {
+  if (pathname?.startsWith("/admin") || pathname?.startsWith("/nota")) {
     return null;
   }
 

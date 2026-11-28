@@ -40,6 +40,7 @@ export interface AdminOrder {
   address: string;
   paymentMethodLabel: string;
   status: AdminOrderStatus;
+  notaPath?: string;
 }
 
 export interface AdminStats {
@@ -77,9 +78,26 @@ export const STATUS_BADGE_CLASSES: Record<AdminOrderStatus, string> = {
 };
 
 /**
- * Builds the formatted WhatsApp notification message for an order.
+ * Resolves the full shareable online invoice URL for an order.
  */
-export function buildAdminWhatsappMessage(order: AdminOrder): string {
+export function resolveOrderNotaUrl(
+  order: AdminOrder,
+  origin?: string,
+): string | null {
+  if (!order.notaPath) return null;
+  const base =
+    origin?.trim().replace(/\/$/, "") || "https://www.sekaranti.web.id";
+  return `${base}${order.notaPath}`;
+}
+
+/**
+ * Builds the formatted WhatsApp notification message for an order, including the auto-expiring Nota URL.
+ */
+export function buildAdminWhatsappMessage(
+  order: AdminOrder,
+  origin?: string,
+): string {
+  const notaUrl = resolveOrderNotaUrl(order, origin);
   const lines = [
     `Halo kak *${order.fullName}*, kami dari Admin *SEKARANTI* ingin mengonfirmasi pesanan Open PO Batch 1:`,
     "",
@@ -92,17 +110,24 @@ export function buildAdminWhatsappMessage(order: AdminOrder): string {
     `*Pengambilan:* ${order.deliveryMethodLabel}${order.codSpot ? ` (${order.codSpot})` : ""}${order.address ? ` - ${order.address}` : ""}`,
     `*Pembayaran:* ${order.paymentMethodLabel}`,
     "",
-    "Berikut kami lampirkan gambar Nota beserta QRIS pembayarannya ya kak. Mohon dicek, terima kasih!",
+    notaUrl ? "*Link Nota & QRIS Pembayaran:*" : null,
+    notaUrl ? notaUrl : null,
+    notaUrl
+      ? "_(Link nota otomatis nonaktif setelah pesanan berstatus Selesai)_"
+      : "Berikut kami lampirkan gambar Nota beserta QRIS pembayarannya ya kak. Mohon dicek, terima kasih!",
   ].filter((line): line is string => line !== null);
 
   return lines.join("\n");
 }
 
 /**
- * Builds a WhatsApp link targeted directly to the customer's phone number with order details.
+ * Builds a WhatsApp link targeted directly to the customer's phone number with order details and Nota link.
  */
-export function buildAdminCustomerWhatsappUrl(order: AdminOrder): string {
+export function buildAdminCustomerWhatsappUrl(
+  order: AdminOrder,
+  origin?: string,
+): string {
   return `https://wa.me/${encodeURIComponent(order.whatsapp)}?text=${encodeURIComponent(
-    buildAdminWhatsappMessage(order),
+    buildAdminWhatsappMessage(order, origin),
   )}`;
 }
