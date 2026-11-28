@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 import { useLanguage } from '../lib/language-context';
 
 type Phase = 'enter' | 'visible' | 'exit' | 'done';
@@ -9,8 +10,12 @@ type Phase = 'enter' | 'visible' | 'exit' | 'done';
 export default function IntroScreen() {
   const [phase, setPhase] = useState<Phase>('enter');
   const { lang } = useLanguage();
+  const pathname = usePathname();
+  const isAdminRoute = pathname?.startsWith('/admin');
 
   useEffect(() => {
+    if (isAdminRoute) return;
+
     // Hanya tampil sekali per session
     if (sessionStorage.getItem('sk_intro_seen')) {
       setPhase('done');
@@ -34,9 +39,9 @@ export default function IntroScreen() {
       clearTimeout(t3);
       document.body.style.overflow = '';
     };
-  }, []);
+  }, [isAdminRoute]);
 
-  if (phase === 'done') return null;
+  if (isAdminRoute || phase === 'done') return null;
 
   const isVisible = phase === 'visible' || phase === 'exit';
   const isExiting = phase === 'exit';

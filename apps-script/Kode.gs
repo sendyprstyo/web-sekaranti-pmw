@@ -1,10 +1,9 @@
 /**
  * SEKARANTI - Open PO Batch 1 (Google Apps Script Backend & Owner Portal)
  *
- * Cara pakai:
- * 1. Salin file ini ke `Kode.gs` di editor Apps Script Google Sheets Anda.
- * 2. Pastikan ada file HTML bernama `Index` (huruf I besar) berisi `Index.html`.
- * 3. Deploy / Kelola deployment -> Versi baru -> Execute as: Me -> Who has access: Anyone.
+ * Mendukung:
+ * 1. Webhook JSON API untuk Next.js (/api/open-po & /api/admin/*)
+ * 2. Portal HTML cadangan di URL /exec
  */
 
 const SHEET_ORDERS = "Pesanan_Batch_1";
@@ -33,6 +32,12 @@ const STATUS_CELL_COLORS = {
   "Dibatalkan": "#FEE2E2",
 };
 
+function jsonResponse_(obj) {
+  return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(
+    ContentService.MimeType.JSON
+  );
+}
+
 function normalizeOrderStatus_(rawStatus) {
   const val = String(rawStatus || "").trim();
   if (ORDER_STATUSES.indexOf(val) !== -1) return val;
@@ -47,9 +52,6 @@ function normalizeOrderStatus_(rawStatus) {
   return "Konfirmasi";
 }
 
-/**
- * Mengubah byte array digest menjadi string hex lowercase.
- */
 function bytesToHex_(bytes) {
   return bytes
     .map(function (b) {
@@ -59,9 +61,6 @@ function bytesToHex_(bytes) {
     .join("");
 }
 
-/**
- * Menghasilkan hash SHA-256 dengan salt untuk password owner.
- */
 function hashPassword_(salt, password) {
   const digest = Utilities.computeDigest(
     Utilities.DigestAlgorithm.SHA_256,
@@ -71,9 +70,6 @@ function hashPassword_(salt, password) {
   return bytesToHex_(digest);
 }
 
-/**
- * Memastikan nilai sel aman dikirim lewat google.script.run (tidak boleh berupa Date object).
- */
 function formatCellString_(val) {
   if (val === null || val === undefined) return "";
   if (val instanceof Date) {
@@ -204,9 +200,6 @@ function getOrCreateOwnersSheet_(ss) {
   return sheet;
 }
 
-/**
- * Menyajikan Portal Management PO untuk Owner saat URL /exec dibuka di browser.
- */
 function doGet() {
   return HtmlService.createHtmlOutputFromFile("Index")
     .setTitle("SEKARANTI · Management Open PO Batch 1")
@@ -214,16 +207,10 @@ function doGet() {
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 
-/**
- * Menerima kiriman data pesanan baru dari web Next.js (POST /api/open-po).
- */
-function doPost(e) {
+function createOrderFromWeb_(data) {
   const lock = LockService.getScriptLock();
   try {
     lock.waitLock(10000);
-
-    const raw = e && e.postData ? e.postData.contents : "{}";
-    const data = JSON.parse(raw);
 
     const ss = SpreadsheetApp.getActiveSpreadsheet();
     const sheet = getOrCreateOrdersSheet_(ss);
@@ -262,20 +249,56 @@ function doPost(e) {
     const statusColor = STATUS_CELL_COLORS[initialStatus] || "#FEF3C7";
     sheet.getRange(lastRow, 23).setBackground(statusColor);
 
-    return ContentService.createTextOutput(
-      JSON.stringify({ ok: true, status: "success", orderCode: data.orderCode || "" })
-    ).setMimeType(ContentService.MimeType.JSON);
+    return { ok: true, status: "success", orderCode: data.orderCode || "" };
   } catch (err) {
-    return ContentService.createTextOutput(
-      JSON.stringify({ ok: false, status: "error", message: String(err) })
-    ).setMimeType(ContentService.MimeType.JSON);
+    return { ok: false, status: "error", message: String(err) };
   } finally {
     lock.releaseLock();
   }
 }
 
+/**
+ * Router POST utama: menangani order baru dari /api/open-po maupun aksi admin dari /api/admin/*.
+ */
+function doPost(e) {
+  try {
+    const raw = e && e.postData ? e.postData.contents : "{}";
+    const data = JSON.parse(raw);
+    const action = String((data && data.action) || "createOrder");
+
+    if (action === "adminLogin") {
+      return jsonResponse_(loginOwner({ email: data.email, password: data.password }));
+    }
+    if (action === "adminVerify") {
+      return jsonResponse_(verifySession(data.token));
+    }
+    if (action === "adminLogout") {
+      return jsonResponse_(logoutOwner(data.token));
+    }
+    if (action === "adminDashboard") {
+      return jsonResponse_(getDashboardData(data.token));
+    }
+    if (action === "adminUpdateStatus") {
+      return jsonResponse_(updateOrderStatus(data.token, data.orderCode, data.newStatus));
+    }
+    if (action === "adminDeleteOrder") {
+      return jsonResponse_(deleteOrder(data.token, data.orderCode));
+    }
+    if (action === "adminAddOwner") {
+      return jsonResponse_(addOwnerAccount(data.token, data));
+    }
+    if (action === "adminChangePassword") {
+      return jsonResponse_(changeOwnPassword(data.token, data));
+    }
+
+    return jsonResponse_(createOrderFromWeb_(data));
+  } catch (err) {
+    return jsonResponse_({ ok: false, status: "error", message: String(err) });
+  }
+}
+
 /* ============================================================
-   OWNER AUTHENTICATION & MANAGEMENT RPC (google.script.run)
+   OWNER AUTHENTICATION & MANAGEMENT RPC
    ============================================================ */
 
 function createSessionToken_(user) {
@@ -495,9 +518,6 @@ function updateOrderStatus(token, orderCode, newStatus) {
   }
 }
 
-/**
- * Menghapus satu baris pesanan PO berdasarkan Kode PO dari Google Sheets.
- */
 function deleteOrder(token, orderCode) {
   const user = getSessionUser_(token);
   if (!user) {

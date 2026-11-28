@@ -2,12 +2,18 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { INSTAGRAM_URL, whatsappHref, getCollections } from "../lib/collections";
+import { usePathname } from "next/navigation";
+import { INSTAGRAM_URL, getCollections } from "../lib/collections";
 import { useLanguage } from "../lib/language-context";
 
 export default function SiteFooter() {
   const collections = getCollections();
   const { t } = useLanguage();
+  const pathname = usePathname();
+
+  if (pathname?.startsWith("/admin")) {
+    return null;
+  }
 
   return (
     <footer className="relative bg-[#1F1D1A] text-[#FAF7F2] overflow-hidden pt-16 pb-12 border-t border-[#D4AF37]/20">

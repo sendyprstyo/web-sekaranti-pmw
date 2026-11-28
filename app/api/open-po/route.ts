@@ -75,6 +75,17 @@ export async function POST(request: NextRequest) {
   const appsScriptUrl = process.env.GOOGLE_APPS_SCRIPT_URL?.trim();
   let savedToSheet = false;
 
+  if (!appsScriptUrl && process.env.NODE_ENV === "production") {
+    return NextResponse.json(
+      {
+        ok: false,
+        error:
+          "Server belum terhubung ke Google Sheets (GOOGLE_APPS_SCRIPT_URL belum disetel di Environment Variables hosting).",
+      },
+      { status: 503 },
+    );
+  }
+
   if (appsScriptUrl) {
     try {
       const upstream = await fetch(appsScriptUrl, {
