@@ -207,20 +207,14 @@ export default function Home() {
           })}
         </div>
 
-        {/* Centered Bottom Action Button like Muswe */}
+        {/* Centered Bottom Action Button — Open PO Batch 1 */}
         <div className="mt-10 sm:mt-14 flex justify-center">
           <Link
-            href="#collections"
-            onClick={(e) => {
-              const el = document.getElementById('collections');
-              if (el) {
-                e.preventDefault();
-                el.scrollIntoView({ behavior: 'smooth' });
-              }
-            }}
-            className="inline-flex items-center justify-center px-8 sm:px-12 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl bg-[#1F1D1A] hover:bg-[#311908] !text-white text-[11px] sm:text-xs font-sans uppercase tracking-[0.22em] font-semibold shadow-md hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 cursor-pointer border border-[#D4AF37]/30"
+            href="/open-po"
+            className="inline-flex items-center justify-center gap-2.5 px-8 sm:px-12 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl bg-[#1F1D1A] hover:bg-[#311908] !text-white text-[11px] sm:text-xs font-sans uppercase tracking-[0.22em] font-semibold shadow-md hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 cursor-pointer border border-[#D4AF37]/30"
           >
-            {t.collections.viewAllBtn}
+            <span>{t.collections.viewAllBtn}</span>
+            <ArrowIcon className="w-4 h-4" />
           </Link>
         </div>
       </section>

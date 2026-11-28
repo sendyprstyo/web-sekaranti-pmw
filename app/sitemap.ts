@@ -8,6 +8,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const siteUrl = new URL(configuredUrl).origin;
   const paths = [
     { path: "/", priority: 1 },
+    { path: "/open-po", priority: 0.9 },
     { path: "/about", priority: 0.7 },
     ...getCollections().flatMap((collection) => [
       { path: `/collections/${collection.slug}`, priority: 0.8 },
