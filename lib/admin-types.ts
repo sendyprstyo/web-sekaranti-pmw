@@ -77,9 +77,9 @@ export const STATUS_BADGE_CLASSES: Record<AdminOrderStatus, string> = {
 };
 
 /**
- * Builds a WhatsApp link targeted directly to the customer's phone number with order details.
+ * Builds the formatted WhatsApp notification message for an order.
  */
-export function buildAdminCustomerWhatsappUrl(order: AdminOrder): string {
+export function buildAdminWhatsappMessage(order: AdminOrder): string {
   const lines = [
     `Halo kak *${order.fullName}*, kami dari Admin *SEKARANTI* ingin mengonfirmasi pesanan Open PO Batch 1:`,
     "",
@@ -92,10 +92,17 @@ export function buildAdminCustomerWhatsappUrl(order: AdminOrder): string {
     `*Pengambilan:* ${order.deliveryMethodLabel}${order.codSpot ? ` (${order.codSpot})` : ""}${order.address ? ` - ${order.address}` : ""}`,
     `*Pembayaran:* ${order.paymentMethodLabel}`,
     "",
-    "Berikut kami lampirkan Nota PDF beserta QRIS pembayarannya ya kak. Mohon dicek, terima kasih!",
+    "Berikut kami lampirkan gambar Nota beserta QRIS pembayarannya ya kak. Mohon dicek, terima kasih!",
   ].filter((line): line is string => line !== null);
 
+  return lines.join("\n");
+}
+
+/**
+ * Builds a WhatsApp link targeted directly to the customer's phone number with order details.
+ */
+export function buildAdminCustomerWhatsappUrl(order: AdminOrder): string {
   return `https://wa.me/${encodeURIComponent(order.whatsapp)}?text=${encodeURIComponent(
-    lines.join("\n"),
+    buildAdminWhatsappMessage(order),
   )}`;
 }

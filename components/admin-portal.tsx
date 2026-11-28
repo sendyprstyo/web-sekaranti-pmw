@@ -6,8 +6,11 @@ import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import {
   ADMIN_LOGO_URL,
   ADMIN_QRIS_URL,
-  downloadAdminOrderPdf,
-} from "../lib/admin-pdf";
+  downloadAdminOrderNotaImage,
+  renderOrderNotaBlob,
+  shareAdminOrderNotaImage,
+  tryCopyNotaImageToClipboard,
+} from "../lib/admin-nota";
 import {
   ADMIN_ORDER_STATUSES,
   AdminDashboardPayload,
@@ -269,14 +272,16 @@ function AdminOrderDetailModal({
   order,
   busyDelete,
   onClose,
-  onDownloadPdf,
+  onDownloadImage,
+  onShareImage,
   onSendWhatsapp,
   onDelete,
 }: {
   order: AdminOrder;
   busyDelete: boolean;
   onClose: () => void;
-  onDownloadPdf: (order: AdminOrder) => void;
+  onDownloadImage: (order: AdminOrder) => void;
+  onShareImage: (order: AdminOrder) => void;
   onSendWhatsapp: (order: AdminOrder) => void;
   onDelete: (orderCode: string) => void;
 }) {
@@ -374,43 +379,55 @@ function AdminOrderDetailModal({
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-[1fr_148px] gap-4 items-center p-4 rounded-2xl bg-[#FAF7F2] border border-[#e2d6ce] mb-4">
-          <div>
-            <span className="text-[10px] uppercase tracking-[0.14em] text-[#8C7D73] font-bold block">
-              Total Tagihan
-            </span>
-            <div className="font-display text-3xl text-[#6B1D2F] font-semibold mt-0.5 mb-2">
-              {formatRupiah(order.totalAmount)}
+        <div className="p-4 sm:p-5 rounded-2xl bg-[#FAF7F2] border border-[#e2d6ce] mb-4 space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-[#e2d6ce]">
+            <div>
+              <span className="text-[10px] uppercase tracking-[0.14em] text-[#8C7D73] font-bold block">
+                Total Tagihan
+              </span>
+              <div className="font-display text-3xl text-[#6B1D2F] font-semibold mt-0.5">
+                {formatRupiah(order.totalAmount)}
+              </div>
             </div>
-            <p className="text-xs text-[#50443e] leading-relaxed">
-              Logo SEKARANTI, rincian tagihan, dan gambar QRIS di samping otomatis masuk ke dalam file <b>Nota PDF</b> siap kirim ke nomor WhatsApp pembeli.
+            <p className="text-xs text-[#50443e] max-w-xs leading-relaxed">
+              Logo SEKARANTI, rincian tagihan, dan gambar QRIS di bawah otomatis masuk ke dalam file <b>Nota Gambar (PNG)</b> siap scan.
             </p>
           </div>
 
-          <Image
-            src={ADMIN_QRIS_URL}
-            alt="QRIS Pembayaran SEKARANTI"
-            width={148}
-            height={208}
-            className="w-36 h-auto rounded-xl border border-[#e2d6ce] bg-white mx-auto"
-          />
+          <div className="flex flex-col items-center">
+            <Image
+              src={ADMIN_QRIS_URL}
+              alt="QRIS Pembayaran SEKARANTI"
+              width={420}
+              height={592}
+              className="w-full max-w-[320px] sm:max-w-[360px] h-auto rounded-2xl border border-[#D4AF37]/40 bg-white shadow-xs"
+            />
+          </div>
         </div>
 
         <div className="flex flex-wrap gap-2.5 pt-3 border-t border-[#e2d6ce]">
           <button
             type="button"
-            onClick={() => onDownloadPdf(order)}
-            className="flex-1 min-w-[180px] py-3 px-4 rounded-xl bg-[#311908] hover:bg-[#4A2E1B] !text-white text-xs uppercase tracking-[0.1em] font-bold border border-[#D4AF37]/40 cursor-pointer"
+            onClick={() => onDownloadImage(order)}
+            className="flex-1 min-w-[170px] py-3 px-4 rounded-xl bg-[#311908] hover:bg-[#4A2E1B] !text-white text-xs uppercase tracking-[0.08em] font-bold border border-[#D4AF37]/40 cursor-pointer"
           >
-            <span className="text-white">⬇ Download Nota PDF</span>
+            <span className="text-white">⬇ Download Nota Gambar</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => onShareImage(order)}
+            className="flex-1 min-w-[170px] py-3 px-4 rounded-xl bg-[#6B1D2F] hover:bg-[#531423] !text-white text-xs uppercase tracking-[0.08em] font-bold cursor-pointer"
+          >
+            <span className="text-white">📤 Bagikan Gambar (HP)</span>
           </button>
 
           <button
             type="button"
             onClick={() => onSendWhatsapp(order)}
-            className="flex-1 min-w-[200px] py-3 px-4 rounded-xl bg-[#25D366] hover:bg-[#1ebe5d] !text-white text-xs uppercase tracking-[0.08em] font-bold cursor-pointer"
+            className="flex-1 min-w-[180px] py-3 px-4 rounded-xl bg-[#25D366] hover:bg-[#1ebe5d] !text-white text-xs uppercase tracking-[0.08em] font-bold cursor-pointer"
           >
-            <span className="text-white">📲 Download PDF &amp; Kirim WA</span>
+            <span className="text-white">📲 Buka Chat WA Pembeli</span>
           </button>
 
           <button
@@ -808,29 +825,56 @@ export default function AdminPortal() {
     }
   };
 
-  const handleDownloadPdf = async (order: AdminOrder) => {
+  const handleDownloadImage = async (order: AdminOrder) => {
     try {
-      await downloadAdminOrderPdf(order);
-      showToast(`Nota PDF ${order.orderCode} berhasil didownload!`);
+      await downloadAdminOrderNotaImage(order);
+      showToast(`Nota gambar ${order.orderCode} berhasil didownload!`);
     } catch (err) {
       showToast(
-        err instanceof Error ? err.message : "Gagal membuat Nota PDF.",
+        err instanceof Error ? err.message : "Gagal membuat Nota gambar.",
       );
     }
   };
 
-  const handleSendWhatsappWithPdf = async (order: AdminOrder) => {
+  const handleShareImage = async (order: AdminOrder) => {
     try {
-      await downloadAdminOrderPdf(order);
+      const result = await shareAdminOrderNotaImage(order);
+      if (result.mode === "shared") {
+        showToast("Nota gambar siap dikirim via WhatsApp!");
+      } else {
+        showToast(
+          result.copied
+            ? "Nota gambar didownload & disalin ke clipboard (tinggal Ctrl+V di WA Web)."
+            : "Nota gambar berhasil didownload ke perangkatmu.",
+        );
+      }
+    } catch (err) {
+      if (err instanceof DOMException && err.name === "AbortError") {
+        return;
+      }
+      showToast("Gagal membagikan nota gambar.");
+    }
+  };
+
+  const handleSendWhatsappWithImage = async (order: AdminOrder) => {
+    let copied = false;
+    try {
+      const blob = await renderOrderNotaBlob(order);
+      copied = await tryCopyNotaImageToClipboard(blob);
+      await downloadAdminOrderNotaImage(order, blob);
     } catch {
-      // Tetap buka WA meski download gagal
+      // Tetap buka WA meski render gagal
     }
     window.open(
       buildAdminCustomerWhatsappUrl(order),
       "_blank",
       "noopener,noreferrer",
     );
-    showToast("PDF terdownload & chat WA pembeli dibuka — tinggal lampirkan PDF!");
+    showToast(
+      copied
+        ? "Chat WA dibuka & gambar disalin ke clipboard (Ctrl+V di WA Web / lampirkan dari Galeri)."
+        : "Nota gambar terdownload & chat WA pembeli dibuka — tinggal lampirkan gambarnya!",
+    );
   };
 
   if (!authChecked) {
@@ -1111,8 +1155,9 @@ export default function AdminPortal() {
           order={detailOrder}
           busyDelete={busyDelete}
           onClose={() => setDetailOrder(null)}
-          onDownloadPdf={handleDownloadPdf}
-          onSendWhatsapp={handleSendWhatsappWithPdf}
+          onDownloadImage={handleDownloadImage}
+          onShareImage={handleShareImage}
+          onSendWhatsapp={handleSendWhatsappWithImage}
           onDelete={handleDeleteOrder}
         />
       )}
